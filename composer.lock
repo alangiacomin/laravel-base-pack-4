@@ -4,28 +4,27 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7e123768dbf19049b233e82a8b153538",
+    "content-hash": "6d10ae3e211e3af341edd28b71a7289d",
     "packages": [
         {
             "name": "alangiacomin/php-utils",
-            "version": "v1.2.0",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/alangiacomin/php-utils.git",
-                "reference": "1cdda044f684f190c7e6a2f219f5857ae0a5237a"
+                "reference": "439c9f4d37fea117b49163a15ea8dec038fd2716"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/alangiacomin/php-utils/zipball/1cdda044f684f190c7e6a2f219f5857ae0a5237a",
-                "reference": "1cdda044f684f190c7e6a2f219f5857ae0a5237a",
+                "url": "https://api.github.com/repos/alangiacomin/php-utils/zipball/439c9f4d37fea117b49163a15ea8dec038fd2716",
+                "reference": "439c9f4d37fea117b49163a15ea8dec038fd2716",
                 "shasum": ""
             },
             "require": {
-                "php": "^8.0"
+                "php": "^8.2|^8.3|^8.4"
             },
             "require-dev": {
-                "pestphp/pest": "^v1.22.3",
-                "pestphp/pest-plugin-parallel": "^1.2"
+                "pestphp/pest": "^v3.7.4"
             },
             "type": "library",
             "autoload": {
@@ -38,7 +37,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "MIT"
+                "Apache-2.0"
             ],
             "authors": [
                 {
@@ -56,9 +55,9 @@
             ],
             "support": {
                 "issues": "https://github.com/alangiacomin/php-utils/issues",
-                "source": "https://github.com/alangiacomin/php-utils/tree/v1.2.0"
+                "source": "https://github.com/alangiacomin/php-utils/tree/v1.0.0"
             },
-            "time": "2023-11-01T22:14:57+00:00"
+            "time": "2025-02-06T20:55:16+00:00"
         },
         {
             "name": "brick/math",

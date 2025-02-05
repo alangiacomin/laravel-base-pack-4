@@ -1,7 +1,7 @@
 {
     "name": "alangiacomin/laravel-base-pack",
+    "license": "Apache-2.0",
     "description": "Laravel base pack",
-    "license": "MIT",
     "keywords": [
         "alangiacomin",
         "base",
@@ -18,7 +18,7 @@
     ],
     "require": {
         "php": "^8.2|^8.3|^8.4",
-        "alangiacomin/php-utils": "^v1.2.0",
+        "alangiacomin/php-utils": "^1.0.0",
         "laravel/framework": "^11.41.3"
     },
     "require-dev": {
@@ -40,7 +40,11 @@
         }
     },
     "scripts": {
-        "test": "./vendor/bin/pest --colors=always"
+        "test": "./vendor/bin/pest --no-coverage --compact",
+        "test-coverage": [
+            "@putenv XDEBUG_MODE=coverage",
+            "./vendor/bin/pest --coverage --coverage-html coverage --compact"
+        ]
     },
     "config": {
         "optimize-autoloader": true,
