@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+start-initialize
+
+php artisan queue:work

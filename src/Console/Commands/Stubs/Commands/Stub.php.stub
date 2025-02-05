@@ -1,0 +1,10 @@
+<?php
+
+namespace App\Commands{relNamespace};
+
+use AlanGiacomin\LaravelBasePack\Commands\Command;
+
+class {commandName} extends Command
+{
+    //
+}

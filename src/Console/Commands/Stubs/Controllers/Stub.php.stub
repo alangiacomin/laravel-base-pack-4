@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Http\Controllers\Web{relNamespace};
+
+use AlanGiacomin\LaravelBasePack\Controllers\Controller;
+use Spatie\RouteAttributes\Attributes\Get;
+use Spatie\RouteAttributes\Attributes\Post;
+use Spatie\RouteAttributes\Attributes\Prefix;
+
+#[Prefix('{controllerName}')]
+class {ControllerName}Controller extends Controller
+{
+    #[Get('firstAction')]
+    public function firstAction()
+    {
+        // $this->executeCommand(new MyCommand());
+    }
+
+    #[Post('secondAction')]
+    public function secondAction()
+    {
+        // $this->executeCommand(new MyCommand());
+    }
+}

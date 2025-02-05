@@ -1,0 +1,26 @@
+services:
+    web:
+        image: {image}:latest
+        build:
+            target: web
+            context: .
+            dockerfile: Dockerfile
+        env_file:
+            - .env
+        ports:
+            - "80:{port}"
+        volumes:
+            - .:/var/www/html
+    queue:
+        image: {image}-queue:latest
+        build:
+            context: .
+            dockerfile: Dockerfile.queue
+        env_file:
+            - .env
+        volumes:
+            - .:/var/www/html
+        depends_on:
+            web:
+                condition: service_started
+                required: true

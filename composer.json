@@ -1,0 +1,63 @@
+{
+    "name": "alangiacomin/laravel-base-pack",
+    "description": "Laravel base pack",
+    "license": "MIT",
+    "keywords": [
+        "alangiacomin",
+        "base",
+        "laravel",
+        "laravel-base-pack"
+    ],
+    "homepage": "https://github.com/alangiacomin/laravel-base-pack",
+    "authors": [
+        {
+            "name": "Alan Giacomin",
+            "email": "alan.giacomin@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.2|^8.3|^8.4",
+        "alangiacomin/php-utils": "^v1.2.0",
+        "laravel/framework": "^11.41.3"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.20.0",
+        "orchestra/testbench": "^9.9.0",
+        "pestphp/pest": "^3.7.4"
+    },
+    "autoload": {
+        "exclude-from-classmap": [
+            "/src/Console/Commands/Publish/"
+        ],
+        "psr-4": {
+            "AlanGiacomin\\LaravelBasePack\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "./vendor/bin/pest --colors=always"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "php-http/discovery": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AlanGiacomin\\LaravelBasePack\\LaravelBasePackServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

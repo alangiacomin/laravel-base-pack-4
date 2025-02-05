@@ -1,0 +1,33 @@
+# Use PHP with Apache as the base image
+FROM php:8.3-cli as web
+
+ENV NVM_VERSION=0.39.7
+ENV NODE_VERSION=20.15.1
+ENV NVM_DIR=/root/.nvm
+
+# Ubuntu main packages
+RUN apt install -y curl
+
+# PHP dependencies
+ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+RUN install-php-extensions mysqli pdo pdo_mysql
+
+# Install BE compiler
+RUN curl -sLS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer
+
+# Copy the application code
+COPY . /var/www/html
+
+# Set the working directory
+WORKDIR /var/www/html
+
+# Install project dependencies
+RUN composer install
+
+# App startup and entrypoint
+COPY ./start-initialize /usr/local/bin/start-initialize
+RUN chmod +x /usr/local/bin/start-initialize
+COPY ./start-queue /usr/local/bin/start-queue
+RUN chmod +x /usr/local/bin/start-queue
+
+ENTRYPOINT ["start-queue"]

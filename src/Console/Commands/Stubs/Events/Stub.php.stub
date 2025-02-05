@@ -1,0 +1,10 @@
+<?php
+
+namespace App\Events{relNamespace};
+
+use AlanGiacomin\LaravelBasePack\Events\Event;
+
+class {eventName} extends Event
+{
+    //
+}

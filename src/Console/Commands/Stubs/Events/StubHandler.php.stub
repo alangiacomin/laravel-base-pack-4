@@ -1,0 +1,15 @@
+<?php
+
+namespace App\Events{relNamespace};
+
+use AlanGiacomin\LaravelBasePack\Events\EventHandler;
+
+class {eventName}Handler extends EventHandler
+{
+    public {eventName} $event;
+
+    public function execute(): void
+    {
+        // $this->send(new MyCommand());
+    }
+}
