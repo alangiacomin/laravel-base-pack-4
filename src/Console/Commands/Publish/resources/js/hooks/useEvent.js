@@ -2,25 +2,39 @@ import {useEffect, useState} from "react";
 import useUser from "./useUser";
 
 const useEvent = (eventName, callback) => {
-    const [channel, setChannel] = useState(null);
+    const [chInstance, setChInstance] = useState(null);
+    const [chName, setChName] = useState('');
     const {user} = useUser();
 
     useEffect(() => {
-        if (user && user.id) {
-            setChannel(window.Echo.private(`App.Models.User.User.${user.id ?? 0}`));
+        if (user && user.id > 0) {
+            setChName(`App.Models.User.User.${user.id}`);
         }
     }, [user]);
 
     useEffect(() => {
-        if (channel) {
-            channel.listen(eventName, callback);
+        if (chName) {
+            // noinspection JSUnresolvedReference
+            setChInstance(window.Echo.private(chName));
         }
         return () => {
-            if (channel) {
-                channel.stopListening(eventName);
+            if (chName) {
+                // noinspection JSUnresolvedReference
+                window.Echo.leaveChannel(chName);
             }
         }
-    }, [callback, channel, eventName]);
+    }, [chName]);
+
+    useEffect(() => {
+        if (chInstance) {
+            chInstance.listen(eventName, callback);
+        }
+        return () => {
+            if (chInstance) {
+                chInstance.stopListening(eventName);
+            }
+        }
+    }, [callback, chInstance, eventName]);
 };
 
 export default useEvent;
