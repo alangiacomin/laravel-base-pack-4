@@ -16,6 +16,8 @@ class ClassUtility
      */
     public static function isCommand(string $className): bool
     {
+        echo $className;
+
         return is_subclass_of($className, Command::class);
     }
 
