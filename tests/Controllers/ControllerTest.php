@@ -29,7 +29,5 @@ describe('Controller', function () {
         expect($response)->toBeInstanceOf(JsonResponse::class)
             ->and($response->getStatusCode())->toBe(200)
             ->and($response->getData(true))->toBe($expectedResponse);
-
-        print_r($response->getData());
     });
 });
