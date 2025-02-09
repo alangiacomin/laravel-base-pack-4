@@ -94,11 +94,13 @@ abstract class QueueObjectHandler implements ShouldQueue
 
     final protected function publish(IEvent $event): void
     {
+        $event->assignUser($this->queueObject->userId);
         $this->messageBus->publish($event);
     }
 
     final protected function send(ICommand $command): void
     {
+        $command->assignUser($this->queueObject->userId);
         $this->messageBus->dispatch($command);
     }
 }

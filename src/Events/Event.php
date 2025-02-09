@@ -4,12 +4,10 @@ namespace AlanGiacomin\LaravelBasePack\Events;
 
 use AlanGiacomin\LaravelBasePack\Events\Contracts\IEvent;
 use AlanGiacomin\LaravelBasePack\QueueObject\QueueObject;
-use Illuminate\Notifications\Messages\BroadcastMessage;
+use Illuminate\Support\Str;
 
 abstract class Event extends QueueObject implements IEvent
 {
-    public int $userId = 0;
-
     /**
      * The event's broadcast name.
      */
@@ -39,31 +37,14 @@ abstract class Event extends QueueObject implements IEvent
     }
 
     /**
-     * Get the broadcastable representation of the notification.
-     */
-    //    public function toBroadcast(object $notifiable): BroadcastMessage
-    //    {
-    //        return new BroadcastMessage($this->props());
-    //    }
-
-    /**
      * Determine which queues should be used for each notification channel.
-     *
-     * @return array<string, string>
      */
-    public function viaQueues(): array
+    public function viaQueues(): array|string
     {
-        $caller = debug_backtrace()[1]['function'];
-        if ($caller == 'queueNotification') {
-            return [
-                'broadcast' => 'notifications',
-            ];
-        }
-
         return [
             'mail' => 'mail-queue',
             'slack' => 'slack-queue',
-            'broadcast' => 'default',
+            'broadcast' => Str::of($this->queue)->isEmpty() ? 'default' : $this->queue,
         ];
     }
 }
