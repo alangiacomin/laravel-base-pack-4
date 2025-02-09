@@ -18,6 +18,8 @@ abstract class QueueObject extends Notification implements IQueueObject
      */
     // public string $id = '';
 
+    public int $userId = 0;
+
     /**
      * Object constructor setting {@see id}
      */
@@ -114,6 +116,13 @@ abstract class QueueObject extends Notification implements IQueueObject
     final public function handlerClassName(): string
     {
         return $this->fullName().'Handler';
+    }
+
+    final public function assignUser(int $userId): void
+    {
+        if ($this->userId == 0) {
+            $this->userId = $userId;
+        }
     }
 
     /**

@@ -26,7 +26,7 @@ class MessageBus implements IMessageBus
 
     public function publish(IEvent $event): mixed
     {
-        if (Auth::check()) {
+        if ($event->userId == 0 && Auth::check()) {
             $event->userId = Auth::user()->id;
         }
 
