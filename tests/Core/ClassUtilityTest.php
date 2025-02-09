@@ -2,7 +2,14 @@
 
 namespace Tests\Core;
 
+use AlanGiacomin\LaravelBasePack\Commands\Command;
 use AlanGiacomin\LaravelBasePack\Core\ClassUtility;
+use AlanGiacomin\LaravelBasePack\Events\Event;
+use AlanGiacomin\LaravelBasePack\QueueObject\QueueObject;
+use AlanGiacomin\LaravelBasePack\Repositories\Repository;
+use Tests\FakeClasses\ExampleCommand;
+use Tests\FakeClasses\ExampleEvent;
+use Tests\FakeClasses\ExampleRepository;
 
 describe('fullClassName', function () {
     dataset('fullClassName', [
@@ -53,4 +60,43 @@ describe('adjustBackslashes', function () {
         $result = ClassUtility::adjustBackslashes($string);
         expect($result)->toBe($expected);
     })->with('adjustBackslashes');
+});
+
+describe('isCommand', function () {
+    dataset('isCommand', [
+        'command_class' => [ExampleCommand::class, true],
+        'non_command_class' => [QueueObject::class, false],
+        'string_class' => [Event::class, false],
+    ]);
+
+    it('should detect if a class is a Command', function (string $className, bool $expected) {
+        $result = ClassUtility::isCommand($className);
+        expect($result)->toBe($expected);
+    })->with('isCommand');
+});
+
+describe('isEvent', function () {
+    dataset('isEvent', [
+        'event_class' => [ExampleEvent::class, true],
+        'non_event_class_queue' => [QueueObject::class, false],
+        'non_event_class_string' => [Command::class, false],
+    ]);
+
+    it('should detect if a class is an Event', function (string $className, bool $expected) {
+        $result = ClassUtility::isEvent($className);
+        expect($result)->toBe($expected);
+    })->with('isEvent');
+});
+
+describe('isRepository', function () {
+    dataset('isRepository', [
+        'repository_class' => [ExampleRepository::class, true],
+        'non_event_class_queue' => [QueueObject::class, false],
+        'non_event_class_string' => [Repository::class, false],
+    ]);
+
+    it('should detect if a class is a Repository', function (string $className, bool $expected) {
+        $result = ClassUtility::isRepository($className);
+        expect($result)->toBe($expected);
+    })->with('isRepository');
 });

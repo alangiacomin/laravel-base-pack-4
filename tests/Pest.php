@@ -13,6 +13,7 @@
 
 // pest()->extend(Tests\TestCase::class)->in('Feature');
 
+use Pest\Expectation;
 use Tests\TestCase;
 
 uses(TestCase::class)->in(__DIR__);
@@ -57,3 +58,27 @@ function path_os(string $path): string
 {
     return str_replace('/', DIRECTORY_SEPARATOR, $path);
 }
+
+expect()->extend('toHaveProtectedProperty', function (string $propertyName, $expectedValue) {
+    // Access the actual value of the Expectation
+    $subject = $this->value;
+
+    // Use Reflection to inspect the class
+    $reflection = new ReflectionClass($subject);
+
+    if (!$reflection->hasProperty($propertyName)) {
+        throw new Exception("Property '{$propertyName}' does not exist on class ".get_class($subject));
+    }
+
+    $property = $reflection->getProperty($propertyName);
+    $property->setAccessible(true);
+
+    // Access the property's value
+    $actualValue = $property->getValue($subject);
+
+    // Use Pest's built-in expectations to compare values
+    expect($actualValue)->toBe($expectedValue);
+
+    // Return the Expectation instance to allow chaining
+    return $this;
+});
