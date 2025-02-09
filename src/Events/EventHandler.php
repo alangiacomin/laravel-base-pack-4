@@ -76,8 +76,10 @@ abstract class EventHandler extends QueueObjectHandler
             //                spl_autoload($notificationName);
             //            }
 
-            /** @noinspection PhpUndefinedMethodInspection */
             // Auth::user()->notify(new $notificationName($this->event));
+            // $this->event->queue = 'notifications';
+            $this->event->onQueue('notifications');
+            /** @noinspection PhpUndefinedMethodInspection */
             Auth::user()->notify($this->event);
         }
     }
