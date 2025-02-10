@@ -13,10 +13,10 @@
 
 // pest()->extend(Tests\TestCase::class)->in('Feature');
 
-use Pest\Expectation;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-uses(TestCase::class)->in(__DIR__);
+uses(TestCase::class, RefreshDatabase::class)->in(__DIR__);
 
 /*
 |--------------------------------------------------------------------------
@@ -59,6 +59,22 @@ function path_os(string $path): string
     return str_replace('/', DIRECTORY_SEPARATOR, $path);
 }
 
+/**
+ * @throws ReflectionException
+ * @throws Exception
+ */
+function mockProperty($object, string $propertyName, $value)
+{
+    $reflectionClass = new ReflectionClass($object);
+
+    if (!$reflectionClass->hasProperty($propertyName)) {
+        throw new Exception("Property '{$propertyName}' does not exist on class ".get_class($object));
+    }
+
+    $property = $reflectionClass->getProperty($propertyName);
+    $property->setValue($object, $value);
+}
+
 expect()->extend('toHaveProtectedProperty', function (string $propertyName, $expectedValue) {
     // Access the actual value of the Expectation
     $subject = $this->value;
@@ -71,7 +87,6 @@ expect()->extend('toHaveProtectedProperty', function (string $propertyName, $exp
     }
 
     $property = $reflection->getProperty($propertyName);
-    $property->setAccessible(true);
 
     // Access the property's value
     $actualValue = $property->getValue($subject);

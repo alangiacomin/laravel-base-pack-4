@@ -52,7 +52,7 @@ abstract class QueueObjectHandler implements ShouldQueue
     /**
      * @throws Throwable
      */
-    final protected function handleObject(): void
+    protected function handleObject(): void
     {
         $this->messageBus = app(IMessageBus::class);
 

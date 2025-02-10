@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Notifications;
+namespace Tests\Events;
 
 use Alangiacomin\PhpUtils\Guid;
 use stdClass;
