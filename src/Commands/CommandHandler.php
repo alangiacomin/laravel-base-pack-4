@@ -58,7 +58,7 @@ abstract class CommandHandler extends QueueObjectHandler
         return null;
     }
 
-    final protected function failed(Throwable $exception): void
+    protected function failed(Throwable $exception): void
     {
         parent::failed($exception);
         $this->result->setFailure($exception->getMessage());

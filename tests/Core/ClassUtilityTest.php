@@ -9,7 +9,7 @@ use AlanGiacomin\LaravelBasePack\QueueObject\QueueObject;
 use AlanGiacomin\LaravelBasePack\Repositories\Repository;
 use Tests\FakeClasses\ExampleCommand;
 use Tests\FakeClasses\ExampleEvent;
-use Tests\FakeClasses\ExampleRepository;
+use Tests\FakeClasses\ExampleModelRepository;
 
 describe('fullClassName', function () {
     dataset('fullClassName', [
@@ -90,7 +90,7 @@ describe('isEvent', function () {
 
 describe('isRepository', function () {
     dataset('isRepository', [
-        'repository_class' => [ExampleRepository::class, true],
+        'repository_class' => [ExampleModelRepository::class, true],
         'non_event_class_queue' => [QueueObject::class, false],
         'non_event_class_string' => [Repository::class, false],
     ]);

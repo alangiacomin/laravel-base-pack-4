@@ -4,8 +4,9 @@ namespace Tests\FakeClasses;
 
 use AlanGiacomin\LaravelBasePack\Models\Contracts\IModel;
 use AlanGiacomin\LaravelBasePack\Repositories\Repository;
+use Tests\FakeClasses\Contracts\IExampleModelRepository;
 
-class ExampleRepository extends Repository
+class ExampleModelRepository extends Repository implements IExampleModelRepository
 {
     //
     public function findById(int $id): ?IModel

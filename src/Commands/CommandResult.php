@@ -4,7 +4,7 @@ namespace AlanGiacomin\LaravelBasePack\Commands;
 
 use stdClass;
 
-final class CommandResult
+class CommandResult
 {
     /**
      * Defines whether the execution of the command was successful or not
