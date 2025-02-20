@@ -1,88 +1,99 @@
 <?php
 
+/** @noinspection PhpUndefinedFieldInspection */
+
+/** @noinspection PhpUndefinedMethodInspection */
+
 namespace Tests\Commands;
 
+use AlanGiacomin\LaravelBasePack\Commands\ModelCommandHandler;
 use AlanGiacomin\LaravelBasePack\Exceptions\BasePackException;
 use AlanGiacomin\LaravelBasePack\Models\Contracts\IModel;
 use AlanGiacomin\LaravelBasePack\Repositories\IRepository;
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Mockery;
 use ReflectionException;
-use Tests\FakeClasses\ExampleCommand;
-use Tests\FakeClasses\ExampleModel;
-use Tests\FakeClasses\ExampleModelCommandHandler;
+use Tests\TestCase;
 
-describe('ModelCommandHandler::setTypedModel', function () {
-    it('sets the model when the repository returns a valid model instance',
-        /**
-         * @throws ReflectionException
-         * @throws BasePackException
-         */
-        function () {
-            $mockRepository = $this->SetMock(IRepository::class);
-            $mockRepository->shouldReceive('findById')->with(1)->andReturn(new ExampleModel());
+class ModelCommandHandlerTest extends TestCase
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $commandHandler = new class() extends ModelCommandHandler
+        {
+            public IModel $model;
 
-            $command = new ExampleCommand();
-            $command->modelId = 1;
+            protected function execute() {}
+        };
+        $this->commandHandler = $this->MockObject(get_class($commandHandler));
+    }
 
-            $commandHandler = Mockery::mock(ExampleModelCommandHandler::class)->makePartial();
-            $commandHandler->shouldAllowMockingProtectedMethods();
-            $commandHandler->shouldReceive('makeRepository')->once()->andReturn($mockRepository);
-            $commandHandler->command = $command;
+    public function test_set_typed_model_sets_model_when_repository_returns_valid_model()
+    {
+        $model = $this->MockObject(IModel::class);
+        $this->repository
+            ->shouldReceive('findById')
+            ->with(1)
+            ->andReturn($model);
 
-            // Act
-            $commandHandler->setTypedModel();
+        $this->command->modelId = 1;
 
-            // Assert
-            expect($commandHandler->model)->toBeInstanceOf(IModel::class);
-        });
+        $this->commandHandler
+            ->shouldReceive('makeRepository')
+            ->once()
+            ->andReturn($this->repository);
+        $this->commandHandler->command = $this->command;
 
-    it('throws BasePackException when the repository returns null',
-        /**
-         * @throws ReflectionException
-         * @throws BasePackException
-         */
-        function () {
-            $mockRepository = $this->SetMock(IRepository::class);
-            $mockRepository->shouldReceive('findById')->with(1)->andReturn(null);
+        $this->commandHandler->setTypedModel();
 
-            $command = new ExampleCommand();
-            $command->modelId = 1;
+        $this->assertInstanceOf(IModel::class, $this->commandHandler->model);
+    }
 
-            $commandHandler = Mockery::mock(ExampleModelCommandHandler::class)->makePartial();
-            $commandHandler->shouldAllowMockingProtectedMethods();
-            $commandHandler->shouldReceive('makeRepository')->once()->andReturn($mockRepository);
-            $commandHandler->command = $command;
+    /**
+     * @throws ReflectionException
+     * @throws BasePackException
+     */
+    public function test_set_typed_model_throws_exception_when_repository_returns_null()
+    {
+        $this->repository
+            ->shouldReceive('findById')
+            ->with(1)
+            ->andReturn(null);
 
-            $this->expectException(BasePackException::class);
-            $this->expectExceptionMessage('model not found');
-            $commandHandler->setTypedModel();
-        });
-});
+        $this->command->modelId = 1;
 
-describe('ModelCommandHandler::makeRepository', function () {
-    it('returns the correct repository instance when given valid tokens and a model name', function () {
+        $this->commandHandler
+            ->shouldReceive('makeRepository')
+            ->once()
+            ->andReturn($this->repository);
+        $this->commandHandler->command = $this->command;
+
+        $this->expectException(BasePackException::class);
+        $this->expectExceptionMessage('model not found');
+
+        $this->commandHandler->setTypedModel();
+    }
+
+    public function test_make_repository_returns_correct_instance()
+    {
         $tokens = ['Namespace', 'To', 'Model'];
         $modelName = 'ExampleModel';
         $expectedClass = 'Namespace\\To\\Model\\Contracts\\IExampleModelRepository';
 
-        $commandHandler = Mockery::mock(ExampleModelCommandHandler::class)->makePartial();
-        $commandHandler->shouldAllowMockingProtectedMethods();
-        app()->bind($expectedClass, fn () => $this->SetMock(IRepository::class));
+        app()->bind($expectedClass, fn () => $this->repository);
 
-        $repository = $commandHandler->makeRepository($tokens, $modelName);
+        $repository = $this->commandHandler->makeRepository($tokens, $modelName);
 
-        expect($repository)->toBeInstanceOf(IRepository::class);
-    });
+        $this->assertInstanceOf(IRepository::class, $repository);
+    }
 
-    it('throws an exception if the repository cannot be resolved', function () {
+    public function test_make_repository_throws_exception_when_repository_cannot_be_resolved()
+    {
         $tokens = ['Namespace', 'Invalid'];
         $modelName = 'NonExistentModel';
-        $commandHandler = Mockery::mock(ExampleModelCommandHandler::class)->makePartial();
-        $commandHandler->shouldAllowMockingProtectedMethods();
 
         $this->expectException(BindingResolutionException::class);
 
-        $commandHandler->makeRepository($tokens, $modelName);
-    });
-});
+        $this->commandHandler->makeRepository($tokens, $modelName);
+    }
+}

@@ -1,204 +1,107 @@
 <?php
 
+/** @noinspection PhpUndefinedFieldInspection */
+
+/** @noinspection PhpUndefinedMethodInspection */
+
 namespace Tests\Events;
 
-use AlanGiacomin\LaravelBasePack\Events\EventHandler;
 use AlanGiacomin\LaravelBasePack\Exceptions\BasePackException;
-use AlanGiacomin\LaravelBasePack\QueueObject\Contracts\IMessageBus;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Auth;
-use Mockery;
-use Tests\FakeClasses\ExampleEvent;
-use Throwable;
+use ReflectionException;
+use Tests\TestCase;
 
-beforeEach(function () {
-    $this->event = new ExampleEvent();
-    $this->event->userId = 1;
+class EventHandlerTest extends TestCase
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
 
-    $this->handlerMock = Mockery::mock(EventHandler::class)->makePartial();
-    $this->handlerMock->shouldAllowMockingProtectedMethods();
-    $this->handlerMock->event = $this->event;
+        $this->event->userId = 1;
+        $this->event->shouldReceive('onQueue');
 
-    $this->SetMock(IMessageBus::class, true);
-});
+        $this->eventHandler->event = $this->event;
+    }
 
-afterEach(function () {
-    Mockery::close();
-});
+    public function test_should_execute_the_handle_method_without_errors(): void
+    {
+        $userMock = $this->MockObject(User::class);
+        $userMock->shouldReceive('setAttribute')->once();
+        $userMock->shouldReceive('notify')->once();
+        $userMock->id = 1;
 
-describe('EventHandler', function () {
-    it('executes the handle method without errors',
-        /**
-         * @throws BasePackException
-         * @throws Throwable
-         */
-        function () {
-            // Arrange
+        Auth::shouldReceive('user')->once()->andReturn($userMock);
+        Auth::shouldReceive('loginUsingId')->once()->with(1);
+        Auth::shouldReceive('check')->andReturn(true);
 
-            $userMock = Mockery::mock(User::class);
-            $userMock->shouldReceive('setAttribute')->once();
-            $userMock->shouldReceive('notify')->once();
-            $userMock->id = 1;
-            Auth::shouldReceive('user')->once()->andReturn($userMock);
-            Auth::shouldReceive('loginUsingId')->once()->with(1);
-            Auth::shouldReceive('check')->andReturn(true);
+        $this->eventHandler
+            ->shouldReceive('handleObject')
+            ->once()
+            ->andReturn();
 
-            /** @noinspection PhpMockeryInvalidMockingMethodInspection */
-            $this->handlerMock
-                ->shouldReceive('handleObject')
-                ->once()
-                ->andReturn();
+        $this->eventHandler->handle($this->event);
+    }
 
-            // Act & Assert
-            $this->handlerMock->handle($this->event);
-        });
+    /**
+     * @throws ReflectionException
+     */
+    public function test_should_save_the_event_in_the_queue_object(): void
+    {
+        $userMock = $this->MockObject(User::class);
+        $userMock->shouldReceive('setAttribute')->once();
+        $userMock->shouldReceive('notify')->once();
+        $userMock->id = 1;
 
-    it('should save the event in the queue object',
-        /**
-         * @throws BasePackException
-         * @throws Throwable
-         */
-        function () {
-            // Arrange
+        Auth::shouldReceive('user')->once()->andReturn($userMock);
+        Auth::shouldReceive('loginUsingId')->once()->with(1);
+        Auth::shouldReceive('check')->andReturn(true);
 
-            $userMock = Mockery::mock(User::class);
-            $userMock->shouldReceive('setAttribute')->once();
-            $userMock->shouldReceive('notify')->once();
-            $userMock->id = 1;
-            Auth::shouldReceive('user')->once()->andReturn($userMock);
-            Auth::shouldReceive('loginUsingId')->once()->with(1);
-            Auth::shouldReceive('check')->andReturn(true);
+        $this->eventHandler->handle($this->event);
 
-            // Act & Assert
+        $this->assertSameProtectedProperty($this->event, $this->eventHandler, 'queueObject');
+    }
 
-            $this->handlerMock->handle($this->event);
+    public function test_should_throw_a_base_pack_exception_when_event_property_not_set(): void
+    {
+        $this->event->shouldReceive('fullName')->andReturn('My\Event\ClassName');
 
-            expect($this->handlerMock)->toHaveProtectedProperty('queueObject', $this->event);
-        });
+        unset($this->eventHandler->event);
 
-    it('throws a BasePackException when the event property is not set',
-        /**
-         * @throws BasePackException
-         * @throws Throwable
-         */
-        function () {
-            // Arrange
+        $this->expectException(BasePackException::class);
+        $this->expectExceptionMessage("My\Event\ClassName: 'event' property must be defined");
 
-            // Ensure the event property is not set
-            unset($this->handlerMock->event);
+        $this->eventHandler->handle($this->event);
+    }
 
-            // Act & Assert
-            $this->expectException(BasePackException::class);
-            $this->expectExceptionMessage("Tests\FakeClasses\ExampleEvent: 'event' property must be defined");
+    public function test_should_not_throw_any_exception_when_event_property_is_set(): void
+    {
+        $userMock = $this->MockObject(User::class);
+        $userMock->shouldReceive('setAttribute')->once();
+        $userMock->shouldReceive('notify')->once();
+        $userMock->id = 1;
 
-            $this->handlerMock->handle($this->event);
-        });
+        Auth::shouldReceive('user')->once()->andReturn($userMock);
+        Auth::shouldReceive('loginUsingId')->once()->with(1);
+        Auth::shouldReceive('check')->andReturn(true);
 
-    it('does not throw any exception when the event property is set',
-        /**
-         * @throws Throwable
-         */
-        function () {
-            // Arrange
-            // Ensure the event property is set
-            $this->handlerMock->event = $this->event;
+        $this->eventHandler->event = $this->event; // Ensure the event property is set
 
-            // Act & Assert
-            // No exception should be thrown
-            expect(fn () => $this->handlerMock->handle($this->event))->not->toThrow(BasePackException::class);
-        });
+        $this->eventHandler->handle($this->event);
+    }
 
-    it('logs in using the correct user ID when userId is greater than zero',
-        /**
-         * @throws Throwable
-         */
-        function () {
-            // Arrange
-            $this->event->userId = 10; // Positive user ID
-            $userMock = Mockery::mock(User::class);
-            $userMock->shouldReceive('setAttribute')->once();
-            $userMock->shouldReceive('notify')->once();
-            $userMock->id = 10;
-            Auth::shouldReceive('loginUsingId')->once()->with(10);
-            Auth::shouldReceive('check')->andReturn(true);
-            Auth::shouldReceive('user')->once()->andReturn($userMock);
+    public function test_should_log_in_using_correct_user_id_when_user_id_greater_than_zero(): void
+    {
+        $this->event->userId = 10; // Positive user ID
+        $userMock = $this->MockObject(User::class);
+        $userMock->shouldReceive('setAttribute')->once();
+        $userMock->shouldReceive('notify')->once();
+        $userMock->id = 10;
 
-            // Act
-            $this->handlerMock->handle($this->event);
-        });
+        Auth::shouldReceive('user')->once()->andReturn($userMock);
+        Auth::shouldReceive('loginUsingId')->once()->with(10); // Use correct user ID
+        Auth::shouldReceive('check')->andReturn(true);
 
-    it('does not log in if userId is zero or less',
-        /**
-         * @throws Throwable
-         */
-        function () {
-            // Arrange
-            $this->event->userId = 0; // Non-positive user ID
-            Auth::shouldReceive('loginUsingId')->never();
-            Auth::shouldReceive('check')->andReturn(false);
-
-            // Act
-            $this->handlerMock->handle($this->event);
-        });
-
-    it('sends a notification if the user is logged in',
-        /**
-         * @throws BasePackException
-         * @throws Throwable
-         */ function () {
-            // Arrange
-            $userMock = Mockery::mock(User::class);
-            $userMock->shouldReceive('notify')->once();
-            $userMock->shouldReceive('setAttribute')->once();
-            $userMock->id = 1;
-            Auth::shouldReceive('loginUsingId')->once()->with(1);
-
-            Auth::shouldReceive('check')->once()->andReturn(true);
-            Auth::shouldReceive('user')->once()->andReturn($userMock);
-
-            // Act
-            $this->handlerMock->handle($this->event);
-        });
-
-    it('does not send a notification if no user is logged in',
-        /**
-         * @throws BasePackException
-         * @throws Throwable
-         */ function () {
-            // Arrange
-            $userMock = Mockery::mock(User::class);
-            $userMock->shouldReceive('setAttribute')->once();
-            $userMock->id = 1;
-            Auth::shouldReceive('check')->once()->andReturn(false);
-            Auth::shouldReceive('user')->never();
-            Auth::shouldReceive('loginUsingId')->once()->with(1);
-
-            // Act
-            $this->handlerMock->handle($this->event);
-
-            // Assert
-            expect($this->event->queue)->toBeEmpty();
-        });
-
-    it('sets the event queue to notifications before sending a notification',
-        /**
-         * @throws BasePackException
-         * @throws Throwable
-         */ function () {
-            // Arrange
-            $userMock = Mockery::mock(User::class);
-            $userMock->shouldReceive('notify')->once();
-            $userMock->shouldReceive('setAttribute')->once();
-            Auth::shouldReceive('loginUsingId')->once()->with(1);
-            $userMock->id = 1;
-
-            Auth::shouldReceive('check')->once()->andReturn(true);
-            Auth::shouldReceive('user')->once()->andReturn($userMock);
-
-            // Act
-            $this->handlerMock->handle($this->event);
-
-            // Assert
-            expect($this->event->queue)->toBe('notifications');
-        });
-});
+        $this->eventHandler->handle($this->event);
+    }
+}

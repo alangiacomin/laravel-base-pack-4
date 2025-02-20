@@ -26,7 +26,9 @@ class CommandResult
      */
     public function __construct()
     {
-        $this->setSuccess();
+        $this->success = true;
+        $this->result = $this->defaultResult();
+        $this->errors = $this->defaultErrors();
     }
 
     /**

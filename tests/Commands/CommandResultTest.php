@@ -1,77 +1,85 @@
 <?php
 
+/** @noinspection PhpUndefinedMethodInspection */
+
+/** @noinspection PhpUndefinedFieldInspection */
+
 namespace Tests\Commands;
 
 use AlanGiacomin\LaravelBasePack\Commands\CommandResult;
 use stdClass;
+use Tests\TestCase;
 
-describe('CommandResult::__construct', function () {
-    it('should initialize success as true', function () {
+class CommandResultTest extends TestCase
+{
+    public function test_should_initialize_success_as_true(): void
+    {
         $commandResult = new CommandResult();
-        expect($commandResult->success)->toBeTrue();
-    });
+        $this->assertTrue($commandResult->success);
+    }
 
-    it('should initialize result with a default empty object', function () {
+    public function test_should_initialize_result_with_a_default_empty_object(): void
+    {
         $commandResult = new CommandResult();
-        expect($commandResult->result)->toBeInstanceOf(stdClass::class);
-    });
+        $this->assertInstanceOf(stdClass::class, $commandResult->result);
+    }
 
-    it('should initialize errors as an empty array', function () {
+    public function test_should_initialize_errors_as_an_empty_array(): void
+    {
         $commandResult = new CommandResult();
-        expect($commandResult->errors)->toBeArray()->toBeEmpty();
-    });
-});
+        $this->assertIsArray($commandResult->errors);
+        $this->assertEmpty($commandResult->errors);
+    }
 
-describe('CommandResult::setSuccess', function () {
-    it('should set success to true', function () {
-        $commandResult = new CommandResult();
-        $commandResult->setSuccess();
-        expect($commandResult->success)->toBeTrue();
-    });
+    public function test_should_set_success_to_true(): void
+    {
+        $this->commandResult->setSuccess();
+        $this->assertTrue($this->commandResult->success);
+    }
 
-    it('should set the result to the given value', function () {
-        $commandResult = new CommandResult();
-        $commandResult->setSuccess('custom result');
-        expect($commandResult->result)->toBe('custom result');
-    });
+    public function test_should_set_result_to_the_given_value(): void
+    {
+        $this->commandResult->setSuccess('custom result');
+        $this->assertEquals('custom result', $this->commandResult->result);
+    }
 
-    it('should reset result to the default value if no value is passed', function () {
-        $commandResult = new CommandResult();
-        $commandResult->setSuccess();
-        expect($commandResult->result)->toBeInstanceOf(stdClass::class);
-    });
+    public function test_should_reset_result_to_default_if_no_value_is_passed(): void
+    {
+        $this->commandResult->setSuccess();
+        $this->assertInstanceOf(stdClass::class, $this->commandResult->result);
+    }
 
-    it('should reset errors to an empty array', function () {
-        $commandResult = new CommandResult();
-        $commandResult->errors = ['error1', 'error2'];
-        $commandResult->setSuccess();
-        expect($commandResult->errors)->toBeArray()->toBeEmpty();
-    });
-});
+    public function test_should_reset_errors_to_an_empty_array(): void
+    {
+        $this->commandResult->errors = ['error1', 'error2'];
+        $this->commandResult->setSuccess();
+        $this->assertIsArray($this->commandResult->errors);
+        $this->assertEmpty($this->commandResult->errors);
+    }
 
-describe('CommandResult::setFailure', function () {
-    it('should set success to false', function () {
-        $commandResult = new CommandResult();
-        $commandResult->setFailure();
-        expect($commandResult->success)->toBeFalse();
-    });
+    public function test_should_set_success_to_false(): void
+    {
+        $this->commandResult->setFailure();
+        $this->assertFalse($this->commandResult->success);
+    }
 
-    it('should set the errors to the given array', function () {
-        $commandResult = new CommandResult();
-        $commandResult->setFailure(['error1', 'error2']);
-        expect($commandResult->errors)->toBe(['error1', 'error2']);
-    });
+    public function test_should_set_errors_to_the_given_array(): void
+    {
+        $errors = ['error1', 'error2'];
+        $this->commandResult->setFailure($errors);
+        $this->assertEquals($errors, $this->commandResult->errors);
+    }
 
-    it('should convert a string error to an array', function () {
-        $commandResult = new CommandResult();
-        $commandResult->setFailure('single error');
-        expect($commandResult->errors)->toBe(['single error']);
-    });
+    public function test_should_convert_a_string_error_to_an_array(): void
+    {
+        $this->commandResult->setFailure('single error');
+        $this->assertEquals(['single error'], $this->commandResult->errors);
+    }
 
-    it('should reset result to the default value', function () {
-        $commandResult = new CommandResult();
-        $commandResult->result = 'custom result';
-        $commandResult->setFailure();
-        expect($commandResult->result)->toBeInstanceOf(stdClass::class);
-    });
-});
+    public function test_should_reset_result_to_default_on_failure(): void
+    {
+        $this->commandResult->result = 'custom result';
+        $this->commandResult->setFailure();
+        $this->assertInstanceOf(stdClass::class, $this->commandResult->result);
+    }
+}

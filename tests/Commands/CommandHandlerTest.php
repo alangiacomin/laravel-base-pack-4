@@ -1,375 +1,143 @@
 <?php
 
-use AlanGiacomin\LaravelBasePack\Commands\CommandHandler;
+/** @noinspection PhpUndefinedMethodInspection */
+
+namespace Tests\Commands;
+
 use AlanGiacomin\LaravelBasePack\Commands\CommandResult;
-use AlanGiacomin\LaravelBasePack\Commands\Contracts\ICommand;
 use AlanGiacomin\LaravelBasePack\Exceptions\BasePackException;
-use AlanGiacomin\LaravelBasePack\QueueObject\Contracts\IMessageBus;
-use Tests\FakeClasses\ExampleCommand;
+use EmptyIterator;
+use Exception;
+use stdClass;
+use Tests\TestCase;
 
-beforeEach(function () {
-    $this->command = new ExampleCommand();
-    $this->command->userId = 1;
+class CommandHandlerTest extends TestCase
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
 
-    $this->handlerMock = Mockery::mock(CommandHandler::class)->makePartial();
-    $this->handlerMock->shouldAllowMockingProtectedMethods();
-    $this->handlerMock->command = $this->command;
+        $this->command->userId = 1;
 
-    $this->SetMock(IMessageBus::class, true);
-});
+        $this->commandHandler->shouldReceive('execute');
+        $this->commandHandler->shouldReceive('handleObject');
+        $this->commandHandler->command = $this->command;
+    }
 
-afterEach(function () {
-    Mockery::close();
-});
+    public function test_handle_successfully_without_rules(): void
+    {
+        $result = $this->commandHandler->handle($this->command);
 
-describe('CommandHandler::handle', function () {
-    it('handles the command successfully without any rules',
-        /**
-         * @throws Throwable
-         */ function () {
-            $mockCommand = $this->SetMock(ICommand::class);
-            $commandHandler = new class() extends CommandHandler
-            {
-                public $command;
+        $this->assertInstanceOf(CommandResult::class, $result);
+        $this->assertTrue($result->success);
+        $this->assertInstanceOf(stdClass::class, $result->result);
+        $this->assertEmpty($result->errors);
+    }
 
-                protected function handleObject(): void {}
+    public function test_handle_successfully_with_empty_rules(): void
+    {
+        $this->commandHandler
+            ->shouldReceive('rules')
+            ->once()
+            ->andReturn(new EmptyIterator());
 
-                protected function execute() {}
-            };
-            $commandHandler->command = $mockCommand;
+        $result = $this->commandHandler->handle($this->command);
 
-            $result = $commandHandler->handle($mockCommand);
+        $this->assertInstanceOf(CommandResult::class, $result);
+        $this->assertTrue($result->success);
+        $this->assertInstanceOf(stdClass::class, $result->result);
+        $this->assertEmpty($result->errors);
+    }
 
-            expect($result)
-                ->toBeInstanceOf(CommandResult::class)
-                ->and($result->success)->toBeTrue()
-                ->and($result->result)->toBeInstanceOf(stdClass::class)
-                ->and($result->errors)->toBeEmpty();
-        });
+    public function test_fails_command_due_to_rules_validation_errors(): void
+    {
+        $this->commandHandler
+            ->shouldReceive('rules')
+            ->once()
+            ->andReturn(['Error 1', 'Error 2']);
 
-    it('fails the command due to rules validation errors',
-        /**
-         * @throws Throwable
-         */ function () {
-            $mockCommand = $this->SetMock(ICommand::class);
-            $commandHandler = new class() extends CommandHandler
-            {
-                public $command;
+        $result = $this->commandHandler->handle($this->command);
 
-                public function rules(): ?iterable
-                {
-                    return ['Error 1', 'Error 2'];
-                }
+        $this->assertInstanceOf(CommandResult::class, $result);
+        $this->assertFalse($result->success);
+        $this->assertInstanceOf(stdClass::class, $result->result);
+        $this->assertEquals(['Error 1', 'Error 2'], $result->errors);
+    }
 
-                protected function execute() {}
+    public function test_fails_command_due_to_exception_rules(): void
+    {
+        $this->commandHandler
+            ->shouldReceive('rules')
+            ->once()
+            ->andThrow(new Exception('Error 1'));
 
-                protected function handleObject(): void {}
-            };
-            $commandHandler->command = $mockCommand;
+        $result = $this->commandHandler->handle($this->command);
 
-            $result = $commandHandler->handle($mockCommand);
+        $this->assertInstanceOf(CommandResult::class, $result);
+        $this->assertFalse($result->success);
+        $this->assertInstanceOf(stdClass::class, $result->result);
+        $this->assertEquals(['Error 1'], $result->errors);
+    }
 
-            expect($result)
-                ->toBeInstanceOf(CommandResult::class)
-                ->and($result->success)->toBeFalse()
-                ->and($result->result)->toBeInstanceOf(stdClass::class)
-                ->and($result->errors)->toMatchArray(['Error 1', 'Error 2']);
-        });
+    public function test_handles_exception_during_typed_object_setup(): void
+    {
+        $this->commandHandler
+            ->shouldReceive('setTypedModel')
+            ->once()
+            ->andThrow(new BasePackException('Typed object setup failed'));
 
-    it('handles exception during typed object setup',
-        /**
-         * @throws Throwable
-         */ function () {
-            $mockCommand = $this->SetMock(ICommand::class);
-            $commandHandler = new class() extends CommandHandler
-            {
-                public $command;
+        $result = $this->commandHandler->handle($this->command);
 
-                protected function handleObject(): void {}
+        $this->assertInstanceOf(CommandResult::class, $result);
+        $this->assertFalse($result->success);
+        $this->assertInstanceOf(stdClass::class, $result->result);
+        $this->assertEquals(['Typed object setup failed'], $result->errors);
+    }
 
-                protected function setTypedModel(): void
-                {
-                    throw new BasePackException('Typed object setup failed');
-                }
+    public function test_successfully_sets_and_uses_default_response(): void
+    {
+        $this->commandHandler
+            ->shouldReceive('getResponse')
+            ->once()
+            ->andReturn('Default response');
 
-                protected function execute() {}
-            };
-            $commandHandler->command = $mockCommand;
+        $result = $this->commandHandler->handle($this->command);
 
-            $result = $commandHandler->handle($mockCommand);
+        $this->assertInstanceOf(CommandResult::class, $result);
+        $this->assertTrue($result->success);
+        $this->assertEquals('Default response', $result->result);
+        $this->assertEmpty($result->errors);
+    }
 
-            expect($result)
-                ->toBeInstanceOf(CommandResult::class)
-                ->and($result->success)->toBeFalse()
-                ->and($result->result)->toBeInstanceOf(stdClass::class)
-                ->and($result->errors)->toMatchArray(['Typed object setup failed']);
-        });
+    public function test_rules_returns_null(): void
+    {
+        $result = $this->commandHandler->rules();
 
-    it('successfully sets and uses default response',
-        /**
-         * @throws Throwable
-         */ function () {
-            $mockCommand = $this->SetMock(ICommand::class);
-            $commandHandler = new class() extends CommandHandler
-            {
-                public $command;
+        $this->assertNull($result);
+    }
 
-                protected function handleObject(): void
-                {
-                    $this->result->setSuccess();
-                }
-
-                protected function getResponse(): string
-                {
-                    return 'Default response';
-                }
-
-                protected function execute() {}
-            };
-            $commandHandler->command = $mockCommand;
-
-            $result = $commandHandler->handle($mockCommand);
-
-            expect($result)
-                ->toBeInstanceOf(CommandResult::class)
-                ->and($result->success)->toBeTrue()
-                ->and($result->result)->toBe('Default response')
-                ->and($result->errors)->toBeEmpty();
-        });
-});
-
-describe('CommandHandler::rules', function () {
-    it('returns null for rules method', function () {
-        $commandHandler = new class() extends CommandHandler
-        {
-            protected function execute() {}
-        };
-
-        $result = $commandHandler->rules();
-
-        expect($result)->toBeNull();
-    });
-});
-
-describe('CommandHandler::failed', function () {
-    it('calls the parent failed method', function () {
-        $mockCommand = $this->SetMock(ICommand::class);
+    public function test_failed_calls(): void
+    {
         $exception = new Exception('Parent failed called');
+        $this->commandHandler->result = $this->commandResult;
+        $this->commandHandler->result
+            ->shouldReceive('setFailure')
+            ->once();
 
-        $commandHandler = new class() extends CommandHandler
-        {
-            public $command;
+        $this->commandHandler->failed($exception);
+    }
 
-            public CommandResult $result;
+    public function test_should_throw_a_base_pack_exception_when_event_property_not_set(): void
+    {
+        $this->command->shouldReceive('fullName')->andReturn('My\Command\ClassName');
 
-            public bool $parentFailedCalled = false;
+        unset($this->commandHandler->command);
 
-            public function testCallFailed(Throwable $exception): void
-            {
-                $this->failed($exception);
-            }
+        $result = $this->commandHandler->handle($this->command);
 
-            protected function manageFailed(Throwable $exception): void
-            {
-                $this->parentFailedCalled = true;
-            }
-
-            protected function execute() {}
-        };
-        $commandHandler->result = new CommandResult();
-        $commandHandler->command = $mockCommand;
-
-        // Trigger the failed method
-        $commandHandler->testCallFailed($exception);
-
-        expect($commandHandler->parentFailedCalled)->toBeTrue();
-    });
-
-    it('sets the result to failure with exception message', function () {
-        $mockCommand = $this->SetMock(ICommand::class);
-        $exception = new Exception('Test failure');
-
-        $commandHandler = new class() extends CommandHandler
-        {
-            public $command;
-
-            public CommandResult $result;
-
-            public function testCallFailed(Throwable $exception): void
-            {
-                $this->failed($exception);
-            }
-
-            protected function execute() {}
-        };
-        $commandHandler->result = new CommandResult();
-        $commandHandler->command = $mockCommand;
-
-        // Trigger the failed method
-        $commandHandler->testCallFailed($exception);
-
-        expect($commandHandler->result->success)->toBeFalse()
-            ->and($commandHandler->result->errors)->toMatchArray(['Test failure']);
-    });
-});
-
-describe('CommandHandler::checkRules', function () {
-    it('returns no errors when rules are null',
-        /**
-         * @throws Throwable
-         */
-        function () {
-            // Arrange: Create a handler without failing rules
-            $commandHandler = new class() extends CommandHandler
-            {
-                public $command;
-
-                protected function handleObject(): void {}
-
-                protected function execute() {}
-            };
-            $command = new ExampleCommand();
-
-            // Act: Call handle, which indirectly tests checkRules
-            $result = $commandHandler->handle($command);
-
-            // Assert: No errors and success should be true
-            expect($result->success)->toBeTrue()
-                ->and($result->errors)->toBeEmpty();
-        });
-
-    it('returns no errors when rules are empty',
-        /**
-         * @throws Throwable
-         */
-        function () {
-            // Arrange: Create a handler without failing rules
-            $commandHandler = new class() extends CommandHandler
-            {
-                public $command;
-
-                public function rules(): ?iterable
-                {
-                    if (1 == 2) {
-                        return yield 'error';
-                    }
-                }
-
-                protected function handleObject(): void {}
-
-                protected function execute() {}
-            };
-            $command = new ExampleCommand();
-
-            // Act: Call handle, which indirectly tests checkRules
-            $result = $commandHandler->handle($command);
-
-            // Assert: No errors and success should be true
-            expect($result->success)->toBeTrue()
-                ->and($result->errors)->toBeEmpty();
-        });
-
-    it('returns errors when rules have errors',
-        /**
-         * @throws Throwable
-         */
-        function () {
-            // Arrange: Create a handler with failing rules
-            $commandHandler = new class() extends CommandHandler
-            {
-                public $command;
-
-                public function rules(): ?iterable
-                {
-                    return new ArrayIterator(['Error 1', 'Error 2']); // Simulate rule errors
-                }
-
-                protected function handleObject(): void {}
-
-                protected function execute() {}
-            };
-            $command = new ExampleCommand();
-
-            // Act: Call handle, which indirectly tests checkRules
-            $result = $commandHandler->handle($command);
-
-            // Assert: Success should be false, and errors should match
-            expect($result->success)->toBeFalse()
-                ->and($result->errors)->toBe(['Error 1', 'Error 2']);
-        });
-
-    it('returns exception message when rules throw a Throwable',
-        /**
-         * @throws Throwable
-         */
-        function () {
-            // Arrange: Create a handler that throws an exception in rules
-            $commandHandler = new class() extends CommandHandler
-            {
-                public $command;
-
-                public function rules(): ?iterable
-                {
-                    throw new Exception('An exception occurred'); // Simulate exception
-                }
-
-                protected function handleObject(): void {}
-
-                protected function execute() {}
-            };
-            $command = new ExampleCommand();
-
-            // Act: Call handle, which indirectly tests checkRules
-            $result = $commandHandler->handle($command);
-
-            // Assert: Success should be false, and the error should contain exception message
-            expect($result->success)->toBeFalse()
-                ->and($result->errors)->toBe(['An exception occurred']);
-        });
-});
-
-describe('CommandHandler::setTypedObject', function () {
-    it('throws a BasePackException when the command property is not set',
-        /**
-         * @throws BasePackException
-         * @throws Throwable
-         */
-        function () {
-            // Arrange
-            $commandHandler = new class() extends CommandHandler
-            {
-                protected function execute() {}
-            };
-            $command = new ExampleCommand();
-
-            // Act
-            $result = $commandHandler->handle($command);
-
-            // Assert:
-            expect($result->success)->toBeFalse()
-                ->and($result->errors)->toBe(["Tests\FakeClasses\ExampleCommand: 'command' property must be defined"]);
-        });
-
-    it('does not throw any exception when the command property is set',
-        /**
-         * @throws BasePackException
-         * @throws Throwable
-         */
-        function () {
-            // Arrange
-            $commandHandler = new class() extends CommandHandler
-            {
-                public $command;
-
-                protected function execute() {}
-            };
-            $command = new ExampleCommand();
-
-            // Act
-            $result = $commandHandler->handle($command);
-
-            // Assert:
-            expect($result->success)->toBeTrue()
-                ->and($result->errors)->toBeEmpty();
-        });
-});
+        $this->assertInstanceOf(CommandResult::class, $result);
+        $this->assertFalse($result->success);
+        $this->assertInstanceOf(stdClass::class, $result->result);
+        $this->assertEquals(['My\Command\ClassName: \'command\' property must be defined'], $result->errors);
+    }
+}

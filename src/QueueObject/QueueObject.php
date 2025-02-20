@@ -90,7 +90,7 @@ abstract class QueueObject extends Notification implements IQueueObject
         return json_encode($this->props());
     }
 
-    final public function props(): array
+    public function props(): array
     {
         $vars = get_object_vars($this);
 
@@ -108,7 +108,7 @@ abstract class QueueObject extends Notification implements IQueueObject
         ]);
     }
 
-    final public function fullName(): string
+    public function fullName(): string
     {
         return get_class($this);
     }

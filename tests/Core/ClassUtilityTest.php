@@ -5,98 +5,146 @@ namespace Tests\Core;
 use AlanGiacomin\LaravelBasePack\Commands\Command;
 use AlanGiacomin\LaravelBasePack\Core\ClassUtility;
 use AlanGiacomin\LaravelBasePack\Events\Event;
+use AlanGiacomin\LaravelBasePack\Models\Contracts\IModel;
 use AlanGiacomin\LaravelBasePack\QueueObject\QueueObject;
 use AlanGiacomin\LaravelBasePack\Repositories\Repository;
-use Tests\FakeClasses\ExampleCommand;
-use Tests\FakeClasses\ExampleEvent;
-use Tests\FakeClasses\ExampleModelRepository;
+use PHPUnit\Framework\Attributes\DataProvider;
+use Tests\TestCase;
 
-describe('fullClassName', function () {
-    dataset('fullClassName', [
-        'root' => ['ActionDone.php', 'App\ActionDone'],
-        'folder' => ['Events/ActionDone.php', 'App\Events\ActionDone'],
-        'subfolder' => ['Events/Action/ActionDone.php', 'App\Events\Action\ActionDone'],
-    ]);
+class ClassUtilityTest extends TestCase
+{
+    public static function fullClassNameProvider(): array
+    {
+        return [
+            ['ActionDone.php', 'App\ActionDone'],
+            ['Events/ActionDone.php', 'App\Events\ActionDone'],
+            ['Events/Action/ActionDone.php', 'App\Events\Action\ActionDone'],
+        ];
+    }
 
-    it('should return full class name', function (string $relativePath, string $expected) {
+    #[DataProvider('fullClassNameProvider')]
+    public function test_should_return_full_class_name(string $relativePath, string $expected): void
+    {
         $result = ClassUtility::fullClassName(app_path_os($relativePath));
-        expect($result)->toBe($expected);
-    })->with('fullClassName');
-});
+        $this->assertSame($expected, $result);
+    }
 
-describe('relativeNamespace', function () {
-    dataset('relativeNamespace', [
-        'root' => ['ActionDone.php', ''],
-        'folder' => ['Events/ActionDone.php', '\Events'],
-        'subfolder' => ['Events/Action/ActionDone.php', '\Events\Action'],
-    ]);
+    public static function relativeNamespaceProvider(): array
+    {
+        return [
+            ['ActionDone.php', ''],
+            ['Events/ActionDone.php', '\Events'],
+            ['Events/Action/ActionDone.php', '\Events\Action'],
+        ];
+    }
 
-    it('should return relative namespace', function (string $relativePath, string $expected) {
+    #[DataProvider('relativeNamespaceProvider')]
+    public function test_should_return_relative_namespace(string $relativePath, string $expected): void
+    {
         $result = ClassUtility::relativeNamespace(app_path_os($relativePath));
-        expect($result)->toBe($expected);
-    })->with('relativeNamespace');
-});
+        $this->assertSame($expected, $result);
+    }
 
-describe('filenameWithoutExtension', function () {
-    dataset('filenameWithoutExtension', [
-        'root' => ['ActionDone.php', 'ActionDone'],
-        'folder' => ['Events/ActionDone.php', 'ActionDone'],
-        'subfolder' => ['Events/Action/ActionDone.php', 'ActionDone'],
-    ]);
+    public static function filenameWithoutExtensionProvider(): array
+    {
+        return [
+            ['ActionDone.php', 'ActionDone'],
+            ['Events/ActionDone.php', 'ActionDone'],
+            ['Events/Action/ActionDone.php', 'ActionDone'],
+        ];
+    }
 
-    it('should return filename without extension', function (string $relativePath, string $expected) {
+    #[DataProvider('filenameWithoutExtensionProvider')]
+    public function test_should_return_filename_without_extension(string $relativePath, string $expected): void
+    {
         $result = ClassUtility::filenameWithoutExtension(app_path_os($relativePath));
-        expect($result)->toBe($expected);
-    })->with('filenameWithoutExtension');
-});
+        $this->assertSame($expected, $result);
+    }
 
-describe('adjustBackslashes', function () {
-    dataset('adjustBackslashes', [
-        'Windows' => ['Events\ActionDone', 'Events\ActionDone'],
-        'Linux' => ['Events/ActionDone', 'Events\ActionDone'],
-    ]);
+    public static function adjustBackslashesProvider(): array
+    {
+        return [
+            ['Events\ActionDone', 'Events\ActionDone'],
+            ['Events/ActionDone', 'Events\ActionDone'],
+        ];
+    }
 
-    it('should return adjust backslashes', function (string $string, string $expected) {
+    #[DataProvider('adjustBackslashesProvider')]
+    public function test_should_adjust_backslashes_to_correct_format(string $string, string $expected): void
+    {
         $result = ClassUtility::adjustBackslashes($string);
-        expect($result)->toBe($expected);
-    })->with('adjustBackslashes');
-});
+        $this->assertSame($expected, $result);
+    }
 
-describe('isCommand', function () {
-    dataset('isCommand', [
-        'command_class' => [ExampleCommand::class, true],
-        'non_command_class' => [QueueObject::class, false],
-        'string_class' => [Event::class, false],
-    ]);
+    public static function isCommandProvider(): array
+    {
+        $class = new class() extends Command {};
 
-    it('should detect if a class is a Command', function (string $className, bool $expected) {
+        return [
+            'command extended' => [$class, true],
+            'queue object' => [QueueObject::class, false],
+            'repository' => [Repository::class, false],
+            'command' => [Command::class, false],
+            'event' => [Event::class, false],
+            'empty' => ['', false],
+            'invalid' => ['Invalid\Class\Name', false],
+        ];
+    }
+
+    #[DataProvider('isCommandProvider')]
+    public function test_should_detect_if_class_is_a_command(mixed $className, bool $expected): void
+    {
         $result = ClassUtility::isCommand($className);
-        expect($result)->toBe($expected);
-    })->with('isCommand');
-});
+        $this->assertSame($expected, $result);
+    }
 
-describe('isEvent', function () {
-    dataset('isEvent', [
-        'event_class' => [ExampleEvent::class, true],
-        'non_event_class_queue' => [QueueObject::class, false],
-        'non_event_class_string' => [Command::class, false],
-    ]);
+    public static function isEventProvider(): array
+    {
+        $class = new class() extends Event {};
 
-    it('should detect if a class is an Event', function (string $className, bool $expected) {
+        return [
+            'event extended' => [$class, true],
+            'queue object' => [QueueObject::class, false],
+            'repository' => [Repository::class, false],
+            'command' => [Command::class, false],
+            'event' => [Event::class, false],
+            'empty' => ['', false],
+            'invalid' => ['Invalid\Class\Name', false],
+        ];
+    }
+
+    #[DataProvider('isEventProvider')]
+    public function test_should_detect_if_class_is_an_event(mixed $className, bool $expected): void
+    {
         $result = ClassUtility::isEvent($className);
-        expect($result)->toBe($expected);
-    })->with('isEvent');
-});
+        $this->assertSame($expected, $result);
+    }
 
-describe('isRepository', function () {
-    dataset('isRepository', [
-        'repository_class' => [ExampleModelRepository::class, true],
-        'non_event_class_queue' => [QueueObject::class, false],
-        'non_event_class_string' => [Repository::class, false],
-    ]);
+    public static function isRepositoryProvider(): array
+    {
+        $class = new class() extends Repository
+        {
+            public function findById(int $id): ?IModel
+            {
+                return null;
+            }
+        };
 
-    it('should detect if a class is a Repository', function (string $className, bool $expected) {
+        return [
+            'repository extended' => [$class, true],
+            'queue object' => [QueueObject::class, false],
+            'repository' => [Repository::class, false],
+            'command' => [Command::class, false],
+            'event' => [Event::class, false],
+            'empty' => ['', false],
+            'invalid' => ['Invalid\Class\Name', false],
+        ];
+    }
+
+    #[DataProvider('isRepositoryProvider')]
+    public function test_should_detect_if_class_is_a_repository(mixed $className, bool $expected): void
+    {
         $result = ClassUtility::isRepository($className);
-        expect($result)->toBe($expected);
-    })->with('isRepository');
-});
+        $this->assertSame($expected, $result);
+    }
+}

@@ -1,33 +1,53 @@
 <?php
 
+/** @noinspection PhpUndefinedMethodInspection */
+
 namespace Tests\Controllers;
 
-use AlanGiacomin\LaravelBasePack\Commands\Contracts\ICommand;
-use AlanGiacomin\LaravelBasePack\Controllers\Controller;
-use AlanGiacomin\LaravelBasePack\QueueObject\Contracts\IMessageBus;
 use Illuminate\Http\JsonResponse;
+use Tests\TestCase;
 
-describe('Controller', function () {
-    it('should return a JSON response when executing a command', function () {
-        // Arrange
+class ControllerTest extends TestCase
+{
+    public function test_should_return_a_json_response_when_executing_a_command(): void
+    {
         $expectedResponse = ['status' => 'success'];
-
-        $command = $this->SetMock(ICommand::class);
-
-        $mockMessageBus = $this->SetMock(IMessageBus::class, true);
-        $mockMessageBus->shouldReceive('execute')
+        $this->messageBus
+            ->shouldReceive('execute')
             ->once()
-            ->with($command)
+            ->with($this->command)
             ->andReturn($expectedResponse);
 
-        $controller = new class() extends Controller {};
+        $response = $this->controller->executeCommand($this->command);
 
-        // Act
-        $response = $controller->executeCommand($command);
+        $this->assertInstanceOf(JsonResponse::class, $response);
+    }
 
-        // Assert
-        expect($response)->toBeInstanceOf(JsonResponse::class)
-            ->and($response->getStatusCode())->toBe(200)
-            ->and($response->getData(true))->toBe($expectedResponse);
-    });
-});
+    public function test_should_return_successful_response_when_executing_a_command(): void
+    {
+        $expectedResponse = ['status' => 'success'];
+        $this->messageBus
+            ->shouldReceive('execute')
+            ->once()
+            ->with($this->command)
+            ->andReturn($expectedResponse);
+
+        $response = $this->controller->executeCommand($this->command);
+
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    public function test_should_return_a_json_data_when_executing_a_command(): void
+    {
+        $expectedResponse = ['status' => 'success'];
+        $this->messageBus
+            ->shouldReceive('execute')
+            ->once()
+            ->with($this->command)
+            ->andReturn($expectedResponse);
+
+        $response = $this->controller->executeCommand($this->command);
+
+        $this->assertEquals($expectedResponse, $response->getData(true));
+    }
+}
