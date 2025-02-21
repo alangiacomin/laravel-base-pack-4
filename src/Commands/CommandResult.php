@@ -4,7 +4,7 @@ namespace AlanGiacomin\LaravelBasePack\Commands;
 
 use stdClass;
 
-final class CommandResult
+class CommandResult
 {
     /**
      * Defines whether the execution of the command was successful or not
@@ -26,7 +26,9 @@ final class CommandResult
      */
     public function __construct()
     {
-        $this->setSuccess();
+        $this->success = true;
+        $this->result = $this->defaultResult();
+        $this->errors = $this->defaultErrors();
     }
 
     /**

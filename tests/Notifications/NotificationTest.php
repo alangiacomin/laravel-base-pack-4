@@ -1,51 +1,65 @@
 <?php
 
+/** @noinspection PhpUndefinedMethodInspection */
+
 namespace Tests\Notifications;
 
-use AlanGiacomin\LaravelBasePack\Events\Contracts\IEvent;
 use AlanGiacomin\LaravelBasePack\Notifications\Notification;
+use ReflectionException;
+use Tests\TestCase;
 
-describe('Notification', function () {
-    it('creates a new Notification instance with the provided IEvent', function () {
-        $mockEvent = $this->SetMock(IEvent::class);
-        $notification = new Notification($mockEvent);
+class NotificationTest extends TestCase
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
 
-        expect($notification)
-            ->toBeInstanceOf(Notification::class)
-            ->and($notification)->toHaveProtectedProperty('event', $mockEvent);
-    });
+        $this->notification = $this->MockObject(Notification::class, true, false, $this->event);
+    }
 
-    it('returns the correct broadcast name from the event', function () {
-        $expectedResult = 'event.fullName';
-        $mockEvent = $this->SetMock(IEvent::class);
-        $mockEvent->shouldReceive('fullName')
-            ->once()
-            ->andReturn($expectedResult);
+    public function test_should_create_a_new_notification_instance(): void
+    {
+        $this->assertInstanceOf(Notification::class, $this->notification);
+    }
 
-        $notification = new Notification($mockEvent);
+    /**
+     * @throws ReflectionException
+     */
+    public function test_should_create_a_new_notification_instance_with_the_provided_event(): void
+    {
+        $this->assertSameProtectedProperty($this->event, $this->notification, 'event');
+    }
 
-        expect($notification->broadcastAs())->toBe($expectedResult);
-    });
+    public function test_should_return_the_correct_broadcast_name_from_the_event(): void
+    {
+        $broadcastName = 'event.fullName';
+        $this->event->shouldReceive('fullName')
+            ->andReturn($broadcastName);
 
-    it('returns the correct delivery channels', function () {
-        $mockEvent = $this->SetMock(IEvent::class);
-        $mockNotifiable = new class() {};
+        $result = $this->notification->broadcastAs();
 
-        $notification = new Notification($mockEvent);
+        $this->assertEquals($broadcastName, $result);
+    }
 
-        expect($notification->via($mockNotifiable))->toBe(['broadcast']);
-    });
+    public function test_should_return_the_correct_delivery_channels(): void
+    {
+        $channels = ['broadcast'];
 
-    it('returns the correct array representation of the notification', function () {
-        $mockEvent = $this->SetMock(IEvent::class);
-        $expectedProps = ['key' => 'value'];
-        $mockEvent->shouldReceive('props')
-            ->once()
-            ->andReturn($expectedProps);
+        $notifiable = new class() {};
+        $result = $this->notification->via($notifiable);
 
-        $mockNotifiable = new class() {};
-        $notification = new Notification($mockEvent);
+        $this->assertEquals($channels, $result);
+    }
 
-        expect($notification->toArray($mockNotifiable))->toBe($expectedProps);
-    });
-});
+    public function test_should_return_the_correct_array_representation_of_the_notification(): void
+    {
+        $eventProps = ['key' => 'value'];
+        $this->event->shouldReceive('props')
+            ->andReturn($eventProps);
+
+        $notifiable = new class() {};
+        $result = $this->notification->toArray($notifiable);
+
+        $this->assertEquals($eventProps, $result);
+    }
+}

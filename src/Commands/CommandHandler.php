@@ -5,10 +5,11 @@ namespace AlanGiacomin\LaravelBasePack\Commands;
 use AlanGiacomin\LaravelBasePack\Commands\Contracts\ICommand;
 use AlanGiacomin\LaravelBasePack\Exceptions\BasePackException;
 use AlanGiacomin\LaravelBasePack\QueueObject\QueueObjectHandler;
+use AllowDynamicProperties;
 use Exception;
 use Throwable;
 
-abstract class CommandHandler extends QueueObjectHandler
+#[AllowDynamicProperties] abstract class CommandHandler extends QueueObjectHandler
 {
     public CommandResult $result;
 
@@ -58,7 +59,7 @@ abstract class CommandHandler extends QueueObjectHandler
         return null;
     }
 
-    final protected function failed(Throwable $exception): void
+    protected function failed(Throwable $exception): void
     {
         parent::failed($exception);
         $this->result->setFailure($exception->getMessage());
@@ -91,6 +92,8 @@ abstract class CommandHandler extends QueueObjectHandler
      * Sets generic bus object as the specific typed object managed by the handler
      *
      * @throws Exception
+     *
+     * @noinspection PhpUndefinedFieldInspection
      */
     private function setTypedObject(): void
     {

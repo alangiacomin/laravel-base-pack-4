@@ -1,63 +1,76 @@
 <?php
 
-namespace Tests\Notifications;
+/** @noinspection PhpUndefinedMethodInspection */
 
-use Alangiacomin\PhpUtils\Guid;
+namespace Tests\Events;
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use stdClass;
-use Tests\FakeClasses\ExampleEvent;
+use Tests\TestCase;
 
-beforeEach(function () {
-    // Using an anonymous class to implement Event (since Event is abstract)
-    $this->event = new ExampleEvent();
-});
+class EventTest extends TestCase
+{
+    public function test_broadcast_name_is_correct(): void
+    {
+        $this->event->shouldReceive('fullName')->andReturn('My\Event\ClassName');
 
-describe('Event', function () {
-    dataset('viaQueuesEmpty', [
-        'null' => null,
-        'empty' => '',
-        'spaces' => '  ',
-    ]);
-    dataset('viaQueuesSet', [
-        'myQueue' => 'myQueue',
-        'otherQueue' => 'otherQueue',
-        'notifications' => 'notifications',
-    ]);
+        $result = $this->event->broadcastAs();
 
-    it('returns the correct broadcast name', function () {
-        expect($this->event->broadcastAs())->toBe('Tests\FakeClasses\ExampleEvent');
-    });
+        $this->assertEquals('My\Event\ClassName', $result);
+    }
 
-    it('returns the correct delivery channels', function () {
-        $notifiable = new stdClass();
-        expect($this->event->via($notifiable))->toBe(['broadcast']);
-    });
-
-    it('returns the correct array representation', function () {
+    public function test_delivery_channels_are_correct(): void
+    {
         $notifiable = new stdClass();
 
+        $result = $this->event->via($notifiable);
+
+        $this->assertEquals(['broadcast'], $result);
+    }
+
+    public function test_array_representation_is_correct(): void
+    {
+        $eventProps = ['key' => 'value'];
+        $this->event->shouldReceive('props')
+            ->andReturn($eventProps);
+
+        $notifiable = new stdClass();
         $result = $this->event->toArray($notifiable);
-        expect($result)->toBeArray()
-            ->and($result)->toHaveKeys(['id', 'userId'])
-            ->and($result['userId'])->toBe(0)
-            ->and(Guid::isValid($result['id']))->toBeTrue();
-    });
 
-    it('returns the correct queues for each channel', function () {
+        $this->assertEquals($eventProps, $result);
+    }
+
+    public function test_queues_for_each_channel_are_correct(): void
+    {
         $result = $this->event->viaQueues();
 
-        expect($result)->toBeArray()
-            ->and($result)->toHaveKeys(['mail', 'slack', 'broadcast'])
-            ->and($result['mail'])->toBe('mail-queue')
-            ->and($result['slack'])->toBe('slack-queue')
-            ->and($result['broadcast'])->toBe('default');
-    });
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('mail', $result);
+        $this->assertEquals('mail-queue', $result['mail']);
+        $this->assertArrayHasKey('slack', $result);
+        $this->assertEquals('slack-queue', $result['slack']);
+        $this->assertArrayHasKey('broadcast', $result);
+        $this->assertEquals('default', $result['broadcast']);
+    }
 
-    it('returns the default queue if not specified', function (string $queue) {
+    public static function viaQueuesSetProvider(): array
+    {
+        return [
+            ['myQueue'],
+            ['otherQueue'],
+            ['notifications'],
+        ];
+    }
+
+    #[DataProvider('viaQueuesSetProvider')]
+    public function test_default_queue_is_correct(string $queue): void
+    {
         $this->event->onQueue($queue);
+
         $result = $this->event->viaQueues();
 
-        expect($result)->toBeArray()
-            ->and($result)->toHaveKey('broadcast')
-            ->and($result['broadcast'])->toBe($queue);
-    })->with('viaQueuesSet');
-});
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('broadcast', $result);
+        $this->assertEquals($queue, $result['broadcast']);
+    }
+}

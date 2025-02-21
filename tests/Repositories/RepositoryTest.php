@@ -1,25 +1,32 @@
 <?php
 
-use Tests\Repositories\RepositoryTestable;
+/** @noinspection PhpUndefinedMethodInspection */
 
-beforeEach(function () {
-    $this->repository = new RepositoryTestable();
-});
+namespace Tests\Repositories;
 
-describe('default', function () {
-    it('should return null by default', function () {
+use AlanGiacomin\LaravelBasePack\Repositories\Repository;
+use Tests\TestCase;
+
+class RepositoryTest extends TestCase
+{
+    public function test_should_return_null_by_default(): void
+    {
         $result = $this->repository->default();
-        expect($result)->toBeNull();
-    });
 
-    it('should return null forced', function () {
-        /** @noinspection PhpRedundantOptionalArgumentInspection */
+        $this->assertNull($result);
+    }
+
+    public function test_should_return_null_forced(): void
+    {
         $result = $this->repository->default(true);
-        expect($result)->toBeNull();
-    });
 
-    it('should return instance', function () {
+        $this->assertNull($result);
+    }
+
+    public function test_should_return_instance(): void
+    {
         $result = $this->repository->default(false);
-        expect($result)->toBeInstanceOf(RepositoryTestable::class);
-    });
-});
+
+        $this->assertInstanceOf(Repository::class, $result);
+    }
+}

@@ -10,6 +10,8 @@ abstract class Event extends QueueObject implements IEvent
 {
     /**
      * The event's broadcast name.
+     *
+     * @noinspection PhpUnused
      */
     public function broadcastAs(): string
     {
@@ -20,6 +22,8 @@ abstract class Event extends QueueObject implements IEvent
      * Get the notification's delivery channels.
      *
      * @return array<int, string>
+     *
+     * @noinspection PhpUnusedParameterInspection
      */
     public function via(object $notifiable): array
     {
@@ -30,6 +34,8 @@ abstract class Event extends QueueObject implements IEvent
      * Get the array representation of the notification.
      *
      * @return array<string, mixed>
+     *
+     * @noinspection PhpUnusedParameterInspection
      */
     public function toArray(object $notifiable): array
     {

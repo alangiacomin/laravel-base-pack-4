@@ -13,6 +13,7 @@ abstract class Controller extends BaseController
 {
     use AuthorizesRequests, ValidatesRequests;
 
+    /** @noinspection PhpUnused */
     final public function executeCommand(ICommand $command): JsonResponse
     {
         return response()->json(app(IMessageBus::class)->execute($command));

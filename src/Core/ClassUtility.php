@@ -10,33 +10,36 @@ use Illuminate\Support\Str;
 class ClassUtility
 {
     /**
-     * Detects if class is a {@see Command}
+     * Checks if the given object or class is a {@see Command}
      *
-     * @param  string  $className  Full class name
+     * @param  mixed  $object_or_class  The object instance or class name to check
+     * @return bool True if it is a subclass of {@see Command}, false otherwise
      */
-    public static function isCommand(string $className): bool
+    public static function isCommand(mixed $object_or_class): bool
     {
-        return is_subclass_of($className, Command::class);
+        return is_subclass_of($object_or_class, Command::class);
     }
 
     /**
-     * Detects if class is a {@see Event}
+     * Determines if the given object or class is an {@see Event}
      *
-     * @param  string  $className  Full class name
+     * @param  mixed  $object_or_class  The object instance or class name to check
+     * @return bool True if it is a subclass of {@see Event}, false otherwise
      */
-    public static function isEvent(string $className): bool
+    public static function isEvent(mixed $object_or_class): bool
     {
-        return is_subclass_of($className, Event::class);
+        return is_subclass_of($object_or_class, Event::class);
     }
 
     /**
-     * Detects if class is a {@see Repository}
+     * Determines if the given object or class is an {@see Repository}
      *
-     * @param  string  $className  Full class name
+     * @param  mixed  $object_or_class  The object instance or class name to check
+     * @return bool True if it is a subclass of {@see Repository}, false otherwise
      */
-    public static function isRepository(string $className): bool
+    public static function isRepository(mixed $object_or_class): bool
     {
-        return is_subclass_of($className, Repository::class);
+        return is_subclass_of($object_or_class, Repository::class);
     }
 
     /**

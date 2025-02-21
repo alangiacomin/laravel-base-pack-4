@@ -13,10 +13,10 @@
 
 // pest()->extend(Tests\TestCase::class)->in('Feature');
 
-use Pest\Expectation;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-uses(TestCase::class)->in(__DIR__);
+uses(TestCase::class, RefreshDatabase::class)->in(__DIR__);
 
 /*
 |--------------------------------------------------------------------------
@@ -67,11 +67,10 @@ expect()->extend('toHaveProtectedProperty', function (string $propertyName, $exp
     $reflection = new ReflectionClass($subject);
 
     if (!$reflection->hasProperty($propertyName)) {
-        throw new Exception("Property '{$propertyName}' does not exist on class ".get_class($subject));
+        throw new Exception("Property '$propertyName' does not exist on class ".get_class($subject));
     }
 
     $property = $reflection->getProperty($propertyName);
-    $property->setAccessible(true);
 
     // Access the property's value
     $actualValue = $property->getValue($subject);

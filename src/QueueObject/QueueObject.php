@@ -48,8 +48,6 @@ abstract class QueueObject extends Notification implements IQueueObject
             'failOnTimeout',
             'timeout',
             'middleware',
-            // 'queue',
-            // 'delay',
         ];
         if (in_array($name, $laravelProps)) {
             return;
@@ -77,7 +75,7 @@ abstract class QueueObject extends Notification implements IQueueObject
         return $obj;
     }
 
-    final public function clone(): self
+    public function clone(): self
     {
         $clone = clone $this;
         $clone->assignNewId();
@@ -85,12 +83,12 @@ abstract class QueueObject extends Notification implements IQueueObject
         return $clone;
     }
 
-    final public function payload(): string
+    public function payload(): string
     {
         return json_encode($this->props());
     }
 
-    final public function props(): array
+    public function props(): array
     {
         $vars = get_object_vars($this);
 
@@ -108,17 +106,17 @@ abstract class QueueObject extends Notification implements IQueueObject
         ]);
     }
 
-    final public function fullName(): string
+    public function fullName(): string
     {
         return get_class($this);
     }
 
-    final public function handlerClassName(): string
+    public function handlerClassName(): string
     {
         return $this->fullName().'Handler';
     }
 
-    final public function assignUser(int $userId): void
+    public function assignUser(int $userId): void
     {
         if ($this->userId == 0) {
             $this->userId = $userId;
@@ -128,7 +126,7 @@ abstract class QueueObject extends Notification implements IQueueObject
     /**
      * Sets a new {@see id}
      */
-    private function assignNewId(): void
+    protected function assignNewId(): void
     {
         $this->id = Guid::newGuid();
     }
