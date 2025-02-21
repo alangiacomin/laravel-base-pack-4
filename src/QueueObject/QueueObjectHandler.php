@@ -25,14 +25,14 @@ abstract class QueueObjectHandler implements ShouldQueue
     public int $tries = 3;
 
     /**
-     * {@see Command} or {@see Event} to handle
-     */
-    protected IQueueObject $queueObject;
-
-    /**
      * Message bus where {@see Command} and {@see Event} are dispatched
      */
     protected IMessageBus $messageBus;
+
+    /**
+     * {@see Command} or {@see Event} to handle
+     */
+    private IQueueObject $queueObject;
 
     /**
      * Execute the command or event body
@@ -54,7 +54,7 @@ abstract class QueueObjectHandler implements ShouldQueue
      */
     protected function handleObject(): void
     {
-        $this->messageBus = app(IMessageBus::class);
+        $this->setMessageBus(app(IMessageBus::class));
 
         $isJob = isset($this->job);
         $queue = $isJob ? $this->job->getQueue() : null;
@@ -70,6 +70,21 @@ abstract class QueueObjectHandler implements ShouldQueue
         } else {
             $this->executeWithinTransaction();
         }
+    }
+
+    protected function setMessageBus(IMessageBus $messageBus): void
+    {
+        $this->messageBus = $messageBus;
+    }
+
+    final protected function setQueueObject(IQueueObject $queueObject): void
+    {
+        $this->queueObject = $queueObject;
+    }
+
+    final protected function getQueueObject(): IQueueObject
+    {
+        return $this->queueObject;
     }
 
     /**
@@ -92,13 +107,13 @@ abstract class QueueObjectHandler implements ShouldQueue
         $this->manageFailed($exception);
     }
 
-    final protected function publish(IEvent $event): void
+    protected function publish(IEvent $event): void
     {
         $event->assignUser($this->queueObject->userId);
         $this->messageBus->publish($event);
     }
 
-    final protected function send(ICommand $command): void
+    protected function send(ICommand $command): void
     {
         $command->assignUser($this->queueObject->userId);
         $this->messageBus->dispatch($command);

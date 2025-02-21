@@ -118,7 +118,7 @@ abstract class QueueObject extends Notification implements IQueueObject
         return $this->fullName().'Handler';
     }
 
-    final public function assignUser(int $userId): void
+    public function assignUser(int $userId): void
     {
         if ($this->userId == 0) {
             $this->userId = $userId;

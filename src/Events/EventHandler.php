@@ -22,7 +22,7 @@ abstract class EventHandler extends QueueObjectHandler
      */
     final public function handle(IEvent $event): void
     {
-        $this->queueObject = $event;
+        $this->setQueueObject($event);
         $this->setTypedObject();
 
         $this->loginAsUser();
@@ -39,10 +39,10 @@ abstract class EventHandler extends QueueObjectHandler
     private function setTypedObject(): void
     {
         if (!property_exists($this, 'event')) {
-            throw new BasePackException($this->queueObject->fullName().": 'event' property must be defined");
+            throw new BasePackException($this->getQueueObject()->fullName().": 'event' property must be defined");
         }
 
-        $this->event = $this->queueObject;
+        $this->event = $this->getQueueObject();
     }
 
     private function loginAsUser(): void

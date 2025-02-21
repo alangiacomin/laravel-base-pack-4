@@ -59,7 +59,7 @@ class EventHandlerTest extends TestCase
 
         $this->eventHandler->handle($this->event);
 
-        $this->assertSameProtectedProperty($this->event, $this->eventHandler, 'queueObject');
+        $this->assertSame($this->event, $this->eventHandler->getQueueObject());
     }
 
     public function test_should_throw_a_base_pack_exception_when_event_property_not_set(): void
