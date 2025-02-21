@@ -77,12 +77,12 @@ abstract class QueueObjectHandler implements ShouldQueue
         $this->messageBus = $messageBus;
     }
 
-    final protected function setQueueObject(IQueueObject $queueObject): void
+    protected function setQueueObject(IQueueObject $queueObject): void
     {
         $this->queueObject = $queueObject;
     }
 
-    final protected function getQueueObject(): IQueueObject
+    protected function getQueueObject(): IQueueObject
     {
         return $this->queueObject;
     }

@@ -92,14 +92,16 @@ use Throwable;
      * Sets generic bus object as the specific typed object managed by the handler
      *
      * @throws Exception
+     *
+     * @noinspection PhpUndefinedFieldInspection
      */
     private function setTypedObject(): void
     {
         if (!property_exists($this, 'command')) {
-            throw new BasePackException($this->getQueueObject()->fullName().": 'command' property must be defined");
+            throw new BasePackException($this->queueObject->fullName().": 'command' property must be defined");
         }
 
-        $this->command = $this->getQueueObject();
+        $this->command = $this->queueObject;
 
         $this->setTypedModel();
     }
