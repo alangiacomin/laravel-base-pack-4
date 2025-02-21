@@ -5,6 +5,7 @@ namespace AlanGiacomin\LaravelBasePack\Console\Commands\Core;
 use Illuminate\Console\Command as ConsoleCommand;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use JetBrains\PhpStorm\NoReturn;
 use Symfony\Component\Process\Process;
 use Throwable;
 
@@ -81,23 +82,9 @@ abstract class Command extends ConsoleCommand
 
     protected function replaceInFile(string $src, array $search = [], array $replace = []): void
     {
-        //        $this->newLine();
-        //        echo "REPLACE $src";
-        //        $this->newLine();
-
         $original = file_get_contents($src);
         $replaceMethod = Str::startsWith(Arr::first($search), '/') ? 'preg_replace' : 'str_replace';
         $replaced = $replaceMethod($search, $replace, $original);
-
-        //        echo 'ORIG';
-        //        $this->newLine();
-        //        echo $original;
-        //        $this->newLine();
-
-        //        echo 'REPL';
-        //        $this->newLine();
-        //        echo $replaced;
-        //        $this->newLine();
 
         file_put_contents($src, $replaced);
     }
@@ -167,14 +154,15 @@ abstract class Command extends ConsoleCommand
     protected function executeProcess(string $command): void
     {
         $this->newLine();
-        echo "EXECUTE: {$command}";
         $this->newLine();
         $process = Process::fromShellCommandline($command);
         $process->run();
         echo $process->getOutput();
     }
 
-    protected function viewHelp()
+    /** @noinspection PhpUnused */
+    #[NoReturn]
+    protected function viewHelp(): void
     {
         $this->call('help', ['command_name' => $this->name, 'format' => 'raw']);
 

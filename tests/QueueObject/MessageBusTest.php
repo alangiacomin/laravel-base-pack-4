@@ -11,8 +11,6 @@ use Illuminate\Support\Facades\Auth;
 use Mockery;
 use Tests\TestCase;
 
-use function PHPUnit\Framework\assertSame;
-
 class MessageBusTest extends TestCase
 {
     public function test_bus_should_dispatch_command(): void
@@ -68,7 +66,7 @@ class MessageBusTest extends TestCase
         /** @noinspection PhpParamsInspection */
         $result = $messageBus->publish($this->event);
 
-        assertSame(42, $this->event->userId);
+        $this->assertSame(42, $this->event->userId);
         $this->assertSame('queued', $result, 'Event should be dispatched to queue with updated userId');
     }
 
@@ -95,7 +93,7 @@ class MessageBusTest extends TestCase
         /** @noinspection PhpParamsInspection */
         $result = $messageBus->publish($this->event);
 
-        assertSame(53, $this->event->userId);
+        $this->assertSame(53, $this->event->userId);
         $this->assertSame('queued', $result, 'Event should be dispatched to queue with updated userId');
     }
 
@@ -123,7 +121,7 @@ class MessageBusTest extends TestCase
         /** @noinspection PhpParamsInspection */
         $result = $messageBus->publish($this->event);
 
-        assertSame(0, $this->event->userId);
+        $this->assertSame(0, $this->event->userId);
         $this->assertSame('queued', $result, 'Event should be dispatched to queue with updated userId');
     }
 

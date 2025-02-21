@@ -5,10 +5,11 @@ namespace AlanGiacomin\LaravelBasePack\Commands;
 use AlanGiacomin\LaravelBasePack\Commands\Contracts\ICommand;
 use AlanGiacomin\LaravelBasePack\Exceptions\BasePackException;
 use AlanGiacomin\LaravelBasePack\QueueObject\QueueObjectHandler;
+use AllowDynamicProperties;
 use Exception;
 use Throwable;
 
-abstract class CommandHandler extends QueueObjectHandler
+#[AllowDynamicProperties] abstract class CommandHandler extends QueueObjectHandler
 {
     public CommandResult $result;
 
@@ -95,10 +96,10 @@ abstract class CommandHandler extends QueueObjectHandler
     private function setTypedObject(): void
     {
         if (!property_exists($this, 'command')) {
-            throw new BasePackException($this->queueObject->fullName().": 'command' property must be defined");
+            throw new BasePackException($this->getQueueObject()->fullName().": 'command' property must be defined");
         }
 
-        $this->command = $this->queueObject;
+        $this->command = $this->getQueueObject();
 
         $this->setTypedModel();
     }

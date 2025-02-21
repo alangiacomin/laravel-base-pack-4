@@ -27,6 +27,7 @@ class MessageBus implements IMessageBus
     public function publish(IEvent $event): mixed
     {
         if ($event->userId == 0 && Auth::check()) {
+            /** @noinspection PhpUndefinedFieldInspection */
             $event->userId = Auth::user()->id;
         }
 
