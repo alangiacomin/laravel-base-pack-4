@@ -18,13 +18,13 @@
     ],
     "require": {
         "php": "^8.2|^8.3|^8.4",
-        "alangiacomin/php-utils": "^1.0.0",
-        "laravel/framework": "^11.41.3"
+        "alangiacomin/php-utils": "^v1.0.0",
+        "laravel/framework": "^v12.0.1"
     },
     "require-dev": {
-        "laravel/pint": "^1.20.0",
-        "orchestra/testbench": "^9.9.0",
-        "pestphp/pest": "^3.7.4"
+        "laravel/pint": "^v1.21.0",
+        "orchestra/testbench": "^v10.0.0",
+        "pestphp/pest": "^v3.7.4"
     },
     "autoload": {
         "exclude-from-classmap": [
