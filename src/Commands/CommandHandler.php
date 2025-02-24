@@ -20,7 +20,7 @@ use Throwable;
      */
     final public function handle(ICommand $command): CommandResult
     {
-        $this->queueObject = $command;
+        $this->setQueueObject($command);
         $this->result = new CommandResult();
 
         try {
@@ -98,10 +98,10 @@ use Throwable;
     private function setTypedObject(): void
     {
         if (!property_exists($this, 'command')) {
-            throw new BasePackException($this->queueObject->fullName().": 'command' property must be defined");
+            throw new BasePackException($this->getQueueObject()->fullName().": 'command' property must be defined");
         }
 
-        $this->command = $this->queueObject;
+        $this->command = $this->getQueueObject();
 
         $this->setTypedModel();
     }
