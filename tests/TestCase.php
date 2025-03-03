@@ -10,6 +10,7 @@ use AlanGiacomin\LaravelBasePack\Events\Event;
 use AlanGiacomin\LaravelBasePack\Events\EventHandler;
 use AlanGiacomin\LaravelBasePack\QueueObject\Contracts\IMessageBus;
 use AlanGiacomin\LaravelBasePack\Repositories\Repository;
+use Alangiacomin\PhpUtils\Guid;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
 use Mockery\MockInterface;
@@ -48,6 +49,7 @@ abstract class TestCase extends OrchestraTestCase
         $this->messageBus = $this->MockObject(IMessageBus::class, registerInstance: true);
 
         $this->command = $this->MockObject(ICommand::class);
+        $this->command->id = Guid::newGuid();
         $this->commandHandler = $this->MockObject(CommandHandler::class);
         $this->commandResult = $this->MockObject(CommandResult::class);
 
