@@ -1,10 +1,14 @@
 <?php
 
+/** @noinspection PhpUndefinedFieldInspection */
+
 /** @noinspection PhpUndefinedMethodInspection */
 
 namespace Tests\Commands;
 
+use AlanGiacomin\LaravelBasePack\Commands\Command;
 use AlanGiacomin\LaravelBasePack\Commands\CommandResult;
+use AlanGiacomin\LaravelBasePack\Commands\CommandResultContainer;
 use AlanGiacomin\LaravelBasePack\Exceptions\BasePackException;
 use EmptyIterator;
 use Exception;
@@ -22,11 +26,16 @@ class CommandHandlerTest extends TestCase
         $this->commandHandler->shouldReceive('execute');
         $this->commandHandler->shouldReceive('handleObject');
         $this->commandHandler->command = $this->command;
+
+        $cmd = new class() extends Command {};
+        $cmd->id = $this->command->id;
+        CommandResultContainer::setResult($cmd);
     }
 
     public function test_handle_successfully_without_rules(): void
     {
-        $result = $this->commandHandler->handle($this->command);
+        $this->commandHandler->handle($this->command);
+        $result = CommandResultContainer::getResult($this->command->id);
 
         $this->assertInstanceOf(CommandResult::class, $result);
         $this->assertTrue($result->success);
@@ -41,7 +50,8 @@ class CommandHandlerTest extends TestCase
             ->once()
             ->andReturn(new EmptyIterator());
 
-        $result = $this->commandHandler->handle($this->command);
+        $this->commandHandler->handle($this->command);
+        $result = CommandResultContainer::getResult($this->command->id);
 
         $this->assertInstanceOf(CommandResult::class, $result);
         $this->assertTrue($result->success);
@@ -56,7 +66,8 @@ class CommandHandlerTest extends TestCase
             ->once()
             ->andReturn(['Error 1', 'Error 2']);
 
-        $result = $this->commandHandler->handle($this->command);
+        $this->commandHandler->handle($this->command);
+        $result = CommandResultContainer::getResult($this->command->id);
 
         $this->assertInstanceOf(CommandResult::class, $result);
         $this->assertFalse($result->success);
@@ -71,7 +82,8 @@ class CommandHandlerTest extends TestCase
             ->once()
             ->andThrow(new Exception('Error 1'));
 
-        $result = $this->commandHandler->handle($this->command);
+        $this->commandHandler->handle($this->command);
+        $result = CommandResultContainer::getResult($this->command->id);
 
         $this->assertInstanceOf(CommandResult::class, $result);
         $this->assertFalse($result->success);
@@ -86,7 +98,8 @@ class CommandHandlerTest extends TestCase
             ->once()
             ->andThrow(new BasePackException('Typed object setup failed'));
 
-        $result = $this->commandHandler->handle($this->command);
+        $this->commandHandler->handle($this->command);
+        $result = CommandResultContainer::getResult($this->command->id);
 
         $this->assertInstanceOf(CommandResult::class, $result);
         $this->assertFalse($result->success);
@@ -101,7 +114,8 @@ class CommandHandlerTest extends TestCase
             ->once()
             ->andReturn('Default response');
 
-        $result = $this->commandHandler->handle($this->command);
+        $this->commandHandler->handle($this->command);
+        $result = CommandResultContainer::getResult($this->command->id);
 
         $this->assertInstanceOf(CommandResult::class, $result);
         $this->assertTrue($result->success);
@@ -119,12 +133,17 @@ class CommandHandlerTest extends TestCase
     public function test_failed_calls(): void
     {
         $exception = new Exception('Parent failed called');
-        $this->commandHandler->result = $this->commandResult;
-        $this->commandHandler->result
-            ->shouldReceive('setFailure')
-            ->once();
+        $this->commandHandler->shouldReceive('getQueueObject')
+            ->once()
+            ->andReturn($this->command);
 
         $this->commandHandler->failed($exception);
+        $result = CommandResultContainer::getResult($this->command->id);
+
+        $this->assertInstanceOf(CommandResult::class, $result);
+        $this->assertFalse($result->success);
+        $this->assertInstanceOf(stdClass::class, $result->result);
+        $this->assertEquals(['Parent failed called'], $result->errors);
     }
 
     public function test_should_throw_a_base_pack_exception_when_event_property_not_set(): void
@@ -133,7 +152,8 @@ class CommandHandlerTest extends TestCase
 
         unset($this->commandHandler->command);
 
-        $result = $this->commandHandler->handle($this->command);
+        $this->commandHandler->handle($this->command);
+        $result = CommandResultContainer::getResult($this->command->id);
 
         $this->assertInstanceOf(CommandResult::class, $result);
         $this->assertFalse($result->success);
