@@ -1,0 +1,6 @@
+.sidebar ul li.active a {
+    font-weight: bold;
+    color: #007acc;
+    border-left: 4px solid #007acc;
+    padding-left: 8px;
+}

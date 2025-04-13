@@ -31,7 +31,18 @@
         <p class="view"><a href="{{ site.github.owner_url }}">View My GitHub Profile</a></p>
         {% endif %}
 
-        <p class="view">qui sidebar</p>
+        <div class="sidebar">
+            <h2>Menu</h2>
+            <ul>
+                {% for voce in site.nav %}
+                {% assign voce_url = voce.url | replace: '.md', '.html' %}
+                <li class="{% if voce_url == page.url %}active{% endif %}">
+                    <a href="{{ voce.url }}">{{ voce.text }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
 
         {% if site.show_downloads %}
         <ul class="downloads">
