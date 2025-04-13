@@ -201,7 +201,7 @@ class Install extends Command implements PromptsForMissingInput
         $this->section('LARAVEL PERMISSIONS');
 
         $this->executeProcess('composer require'.
-            ' spatie/laravel-permission:6.10.1'
+            ' spatie/laravel-permission:6.17.0'
         );
 
         $this->publishVendor([
@@ -217,7 +217,7 @@ class Install extends Command implements PromptsForMissingInput
         $this->section('LARAVEL PULSE');
 
         $this->executeProcess('composer require'.
-            ' laravel/pulse:1.3.2'
+            ' laravel/pulse:1.4.1'
         );
 
         $this->publishVendor([
@@ -241,7 +241,7 @@ class Install extends Command implements PromptsForMissingInput
         $this->section('LARAVEL REVERB');
 
         $this->executeProcess('composer require'.
-            ' laravel/reverb:1.4.4'
+            ' laravel/reverb:1.5.0'
         );
 
         $this->callCommand('reverb:install', ['--no-interaction' => true]);
@@ -275,7 +275,7 @@ class Install extends Command implements PromptsForMissingInput
         $this->section('LARAVEL ROUTE ATTRIBUTES');
 
         $this->executeProcess('composer require'.
-            ' spatie/laravel-route-attributes:1.25.0'
+            ' spatie/laravel-route-attributes:1.25.2'
         );
 
         $this->publishVendor([
@@ -300,7 +300,7 @@ class Install extends Command implements PromptsForMissingInput
         $this->section('LARAVEL TELESCOPE');
 
         $this->executeProcess('composer require'.
-            ' laravel/telescope:5.2.6'
+            ' laravel/telescope:5.7.0'
         );
 
         $this->callCommand('telescope:install');
