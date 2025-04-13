@@ -34,10 +34,11 @@
 
         <div class="sidebar">
             <h2>Menu</h2>
-            <ul>
+            <p>page: {{page.url}}</p>
+            <ul style="list-style-type:none;">
                 {% for voce in site.nav %}
                 {% assign voce_url = voce.url | replace: '.md', '.html' %}
-                <li class="{% if voce_url == page.url %}active{% endif %}">
+                <li class="{% if voce.url == page.url %}active{% endif %}">
                     <a href="{{ voce.url }}">{{ voce.text }}</a>
                 </li>
                 {% endfor %}
