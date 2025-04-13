@@ -33,6 +33,7 @@
         {% endif %}
 
         <div class="sidebar">
+            <p>page: {{page.url}}</p>
             <ul class="menu-list">
                 {% for voce in site.nav %}
                 {% assign page_url = page.url | remove_first: '/' %}
