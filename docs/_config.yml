@@ -3,8 +3,8 @@ plugins:
     - jekyll-remote-theme # add this line to the plugins list if you already have one
 nav:
     -   text: "Home"
-        url: "/docs/index.md"
+        url: "docs/index.html"
     -   text: "Introduzione"
-        url: "/docs/index.md"
+        url: "docs/index.html"
     -   text: "Guida"
-        url: "/docs/guida.md"
+        url: "docs/guida.html"
