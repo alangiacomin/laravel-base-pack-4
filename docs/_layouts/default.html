@@ -37,7 +37,8 @@
             <ul class="menu-list">
                 {% for voce in site.nav %}
                 {% assign page_url = page.url | remove_first: '/' %}
-                <li class="{% if voce.url == page_url %}active{% endif %}">
+                {% assign is_active = page_url == voce.url or (page_url == '' and voce.url == 'index.html') %}
+                <li class="{% if is_active %}active{% endif %}">
                     <a href="{{ voce.url }}">{{ voce.text }}</a>
                 </li>
                 {% endfor %}
