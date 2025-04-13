@@ -1,0 +1,37 @@
+name: Sync README to docs/index.md
+
+on:
+    workflow_dispatch:
+    push:
+
+jobs:
+    sync:
+        runs-on: ubuntu-latest
+        if: github.actor != 'dependabot[bot]'
+
+        permissions:
+            # Give the default GITHUB_TOKEN write permission to commit and push the
+            # added or changed files to the repository.
+            contents: write
+
+        steps:
+            -   uses: actions/checkout@v4
+                with:
+                    token: ${{ secrets.PAT_WKF_TRIGGER }}
+
+            -   name: Copy README.md to docs/index.md
+                run: |
+                    cp README.md docs/index.md
+                    echo "README.md copiato con successo in docs/index.md"
+
+            -   name: Commit changes
+                uses: stefanzweifel/git-auto-commit-action@e348103e9026cc0eee72ae06630dbe30c8bf7a79 # 5.1.0
+                with:
+                    commit_message: Readme synced to docs
+                    skip_fetch: true
+                    # Name used for the commit user
+                    #commit_user_name: Alan Giacomin # optional, default is github-actions[bot]
+                    # Email address used for the commit user
+                    #commit_user_email: alan.giacomin@gmail.com # optional, default is 41898282+github-actions[bot]@users.noreply.github.com
+                    # Value used for the commit author. Defaults to the username of whoever triggered this workflow run.
+                    commit_author: Alan Giacomin <alan.giacomin@gmail.com> # optional, default is ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
