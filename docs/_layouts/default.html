@@ -33,18 +33,15 @@
         {% endif %}
 
         <div class="sidebar">
-            <h2>Menu</h2>
-            <p>page: {{page.url}}</p>
-            <ul style="list-style-type:none;">
+            <ul class="menu-list">
                 {% for voce in site.nav %}
-                {% assign voce_url = voce.url | replace: '.md', '.html' %}
-                <li class="{% if voce.url == page.url %}active{% endif %}">
+                {% assign page_url = page.url | remove_first: '/' %}
+                <li class="{% if voce.url == page_url %}active{% endif %}">
                     <a href="{{ voce.url }}">{{ voce.text }}</a>
                 </li>
                 {% endfor %}
             </ul>
         </div>
-
 
         {% if site.show_downloads %}
         <ul class="downloads">

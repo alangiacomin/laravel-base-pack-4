@@ -1,6 +1,20 @@
-.sidebar ul li.active a {
+/* Rimuove puntini, padding e margini */
+.sidebar .menu-list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Imposta padding uguale per tutti gli elementi (opzionale) */
+.sidebar .menu-list li {
+    padding: 4px 0;
+}
+
+/* Evidenzia la voce corrente */
+.sidebar .menu-list li.active a {
     font-weight: bold;
     color: #007acc;
     border-left: 4px solid #007acc;
     padding-left: 8px;
+    background-color: #f0f8ff; /* opzionale, per evidenziare meglio */
 }
