@@ -41,8 +41,8 @@ class Install extends Command implements PromptsForMissingInput
         $this->laravelPulse();
         $this->laravelTelescope();
 
-        $this->lockComposerJson();
-        $this->lockPackageJson();
+        // $this->lockComposerJson();
+        // $this->lockPackageJson();
         $this->phpVersion();
 
         $this->finish();
