@@ -1,0 +1,8 @@
+theme: "just-the-docs"
+nav:
+    -   text: "Home"
+        url: "/README.md"
+    -   text: "Introduzione"
+        url: "/docs/index.md"
+    -   text: "Guida"
+        url: "/docs/guida.md"
