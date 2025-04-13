@@ -107,6 +107,7 @@ class Install extends Command implements PromptsForMissingInput
     {
         $this->section('ENVIRONMENT');
 
+        if (!str_contains(base_path('.env'), 'VITE_APP_URL')) {
         $this->replaceInFile(
             base_path('.env'),
             [
@@ -114,11 +115,13 @@ class Install extends Command implements PromptsForMissingInput
                 'VITE_APP_NAME="${APP_NAME}"',
             ],
             [
-                'APP_URL=http://localhost:8000',
+                'APP_PORT=8000'
+                .PHP_EOL.'APP_URL=http://localhost:${APP_PORT}',
                 'VITE_APP_NAME="${APP_NAME}"'
                 .PHP_EOL.'VITE_APP_URL="${APP_URL}"',
             ]
         );
+            }
     }
 
     private function backend(): void
