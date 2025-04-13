@@ -28,10 +28,31 @@ process the command.
 
 ## Executing Commands
 
-You can execute a command from a controller or service using the executeCommand method:
+You can execute a command synchronously from a controller using the `executeCommand` method:
 
 ```php
-$this->executeCommand(new CreateUser($data));
+class UserController extends Controller
+{
+    #[Get('create')]
+    public function create()
+    {
+        $this->executeCommand(new CreateUser($data));
+    }
+}
 ```
 
 This approach allows you to keep your controllers thin and delegate logic to dedicated handlers.
+
+Commands can also be executed from event handlers, but they will be sent asynchronously over the message bus:
+
+```php
+class EventHappenedHandler extends EventHandler
+{
+    public EventHappened $event;
+
+    public function execute(): void
+    {
+        $this->send(new CreateUser($data));
+    }
+}
+```
