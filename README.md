@@ -17,11 +17,14 @@ Install the package via Composer:
 composer require alangiacomin/laravel-base-pack
 ```
 
-Publish configuration and stub files (if available):
+After installing the package, you must run the following Artisan command to complete the setup:
 
 ```bash
-php artisan vendor:publish --tag=base-pack-config
+php artisan basepack:install
 ```
+
+This command will publish the configuration and perform the necessary setup for the package to work correctly in your
+Laravel project.
 
 ## ⚙️ Structure & Usage
 
@@ -29,25 +32,69 @@ php artisan vendor:publish --tag=base-pack-config
 
 Commands represent executable actions, handled by separate handler classes.
 
-- Commands should be placed in `App\Application\Commands\`
-- Each command has its own `Handler`
-- Use the CommandBus to dispatch:
-  ```php
-  $this->commandBus->dispatch(new ExecuteActionCommand($data));
-  ```
+You can generate a new command using the following Artisan command:
 
-> The CommandBus is provided by the package and can be injected where needed.
+```bash
+php artisan basepack:command {name}
+```
+
+This will create a new command class and its corresponding handler within the `App\Commands` namespace.
+
+If the `{name}` argument includes subpaths (e.g. `User/CreateUser`), these will be reflected in the namespace structure:
+
+```bash
+php artisan basepack:command User/CreateUser
+```
+
+This will generate:
+
+- `App\Commands\User\CreateUser.php` (the command)
+- `App\Commands\User\CreateUserHandler.php` (the handler)
+
+Each command class encapsulates the data needed to perform an action, while the handler contains the business logic to
+process the command.
+
+#### Executing Commands
+
+You can execute a command from a controller or service using the executeCommand method:
+
+```php
+$this->executeCommand(new CreateUser($data));
+```
+
+This approach allows you to keep your controllers thin and delegate logic to dedicated handlers.
 
 ### 🔄 Events
 
-Events can be used to react to specific actions asynchronously or in a decoupled way.
+You can generate a new event using the following Artisan command:
 
-- Event class: `App\Domain\Events\EventName`
-- Listener class: `App\Application\Listeners\EventNameListener`
+```bash
+php artisan basepack:event {name}
+```
+
+This will create a new event class under the `App\Events` namespace.
+
+If the `{name}` argument includes subpaths (e.g. `User/UserCreated`), the namespace will reflect that structure:
+
+```bash
+php artisan basepack:event User/UserCreated
+```
+
+This will generate:
+
+- `App\Events\User\UserCreated.php` (the event)
+- `App\Events\User\UserCreatedHandler.php` (the handler)
+
+#### Publishing Events
+
+Events are typically published from within a command handler, using the publish method:
 
 ```php
-event(new ActionCompletedEvent($entity));
+$this->publish(new UserCreated($data));
 ```
+
+This allows you to decouple domain events from command execution logic and react to them in other parts of the system,
+such as listeners or subscribers.
 
 ### 🗂️ Repositories
 
