@@ -24,22 +24,10 @@
 
         <p>{{ site.description | default: site.github.project_tagline }}</p>
 
-        {% if site.github.is_project_page %}
-        <p class="view"><a href="{{ site.github.repository_url }}">View the Project on GitHub <small>{{ site.github.repository_nwo }}</small></a></p>
-        {% endif %}
-
-        {% if site.github.is_user_page %}
-        <p class="view"><a href="{{ site.github.owner_url }}">View My GitHub Profile</a></p>
-        {% endif %}
-
         <div class="sidebar">
             <ul class="menu-list">
                 {% for voce in site.nav %}
                 {% assign page_url = page.url | remove_first: '/' %}
-                <p>voce.url: {{voce.url}}</p>
-                <p>page.url: {{page.url}}</p>
-                <p>page_url: {{page_url}}</p>
-                <p>is_active: {{ (page_url == voce.url) or (page_url == '' and voce.url == 'index.html') }}</p>
                 <li class="{% if (page_url == voce.url) or (page_url == '' and voce.url == 'index.html') %}active{% endif %}">
                     <a href="{{ voce.url }}">{{ voce.text }}</a>
                 </li>
@@ -61,6 +49,14 @@
 
     </section>
     <footer>
+        {% if site.github.is_project_page %}
+        <p class="view"><a href="{{ site.github.repository_url }}">View the Project on GitHub <small>{{ site.github.repository_nwo }}</small></a></p>
+        {% endif %}
+
+        {% if site.github.is_user_page %}
+        <p class="view"><a href="{{ site.github.owner_url }}">View My GitHub Profile</a></p>
+        {% endif %}
+
         {% if site.github.is_project_page %}
         <p>This project is maintained by <a href="{{ site.github.owner_url }}">{{ site.github.owner_name }}</a></p>
         {% endif %}
