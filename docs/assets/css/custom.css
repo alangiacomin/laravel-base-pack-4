@@ -1,3 +1,11 @@
+.wrapper {
+    width: 1140px;
+}
+
+section {
+    width: 840px;
+}
+
 /* Rimuove puntini, padding e margini */
 .sidebar .menu-list {
     list-style-type: none;
