@@ -1,4 +1,4 @@
-theme: "just-the-docs"
+theme: "minimal-mistakes-jekyll"
 nav:
     -   text: "Home"
         url: "/README.md"
