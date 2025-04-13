@@ -36,12 +36,11 @@
             <ul class="menu-list">
                 {% for voce in site.nav %}
                 {% assign page_url = page.url | remove_first: '/' %}
-                {% assign is_active = (page_url == voce.url) or (page_url == '' and voce.url == 'index.html') %}
                 <p>voce.url: {{voce.url}}</p>
                 <p>page.url: {{page.url}}</p>
                 <p>page_url: {{page_url}}</p>
-                <p>is_active: {{is_active}}</p>
-                <li class="{% if is_active %}active{% endif %}">
+                <p>is_active: {{ (page_url == voce.url) or (page_url == '' and voce.url == 'index.html') }}</p>
+                <li class="{% if (page_url == voce.url) or (page_url == '' and voce.url == 'index.html') %}active{% endif %}">
                     <a href="{{ voce.url }}">{{ voce.text }}</a>
                 </li>
                 {% endfor %}
