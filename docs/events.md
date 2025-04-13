@@ -10,7 +10,7 @@ php artisan basepack:event {name}
 
 This will create a new event class under the `App\Events` namespace.
 
-If the `{name}` argument includes subpaths (e.g. `User/UserCreated`), the namespace will reflect that structure:
+If the `{name}` argument includes subpaths (e.g. `User/UserCreated`), the namespace will reflect that:
 
 ```bash
 php artisan basepack:event User/UserCreated
@@ -23,10 +23,18 @@ This will generate:
 
 ## Publishing Events
 
-Events are typically published from within a command handler, using the publish method:
+Events are typically published from within a command handler using the `publish` method:
 
 ```php
-$this->publish(new UserCreated($data));
+class CreateUserHandler extends CommandHandler
+{
+    public CreateUser $command;
+
+    public function execute()
+    {
+        $this->publish(new UserCreated($data));
+    }
+}
 ```
 
 This allows you to decouple domain events from command execution logic and react to them in other parts of the system,
