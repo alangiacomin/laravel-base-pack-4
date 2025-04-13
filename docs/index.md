@@ -28,25 +28,30 @@ Laravel project.
 
 ## ⚙️ Structure & Usage
 
-### 🗂️ Repositories
+This package is organized around a few core components that help structure application logic in a modular and
+maintainable way.
 
-The package encourages a standard structure for working with repositories.
+* **Commands**
 
-- Interfaces: `App\Domain\Repositories\`
-- Implementations: `App\Infrastructure\Repositories\`
-- Automatic binding via a dedicated service provider
+  Custom Artisan commands that allow you to extend the CLI with domain-specific tasks. Useful for background jobs, setup
+  scripts, or tooling.
 
-Example:
+  → [Learn more](https://alangiacomin.github.io/laravel-base-pack/commands.html)
 
-```php
-$user = $this->userRepository->findById($id);
-```
 
-To add a new repository:
+* **Events**
 
-1. Create the interface in the domain layer
-2. Implement it in the infrastructure layer
-3. Register the binding in the `RepositoryServiceProvider` (if not automatically handled)
+  Represent something that has happened in the domain. Events help decouple components and trigger side effects such as
+  listeners or jobs.
+
+  → [Learn more](https://alangiacomin.github.io/laravel-base-pack/events.html)
+
+
+* **Repositories**
+
+  A pattern to abstract and encapsulate data access logic, improving testability and separation of concerns.
+
+  → _Coming soon_
 
 ## 🧪 Testing & Maintainability
 
