@@ -7,7 +7,6 @@ on:
 jobs:
     sync:
         runs-on: ubuntu-latest
-        if: github.actor != 'dependabot[bot]'
 
         permissions:
             # Give the default GITHUB_TOKEN write permission to commit and push the

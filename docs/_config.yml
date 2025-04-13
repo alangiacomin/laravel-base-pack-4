@@ -4,7 +4,7 @@ plugins:
 nav:
     -   text: "Home"
         url: "index.html"
-    -   text: "Introduzione"
-        url: "index.html"
-    -   text: "Guida"
-        url: "guida.html"
+    -   text: "Commands"
+        url: "commands.html"
+    -   text: "Events"
+        url: "events.html"
